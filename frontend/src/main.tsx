@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 import Root from "./routes/root";
 import Home from "./routes/home";
+import Login from "./routes/login";
 
 import "./index.css";
 
@@ -17,11 +18,10 @@ const router = createBrowserRouter([
         path: "home",
         element: <Home />,
       },
-      // {
-      //   path: "buy",
-      //   element: <Store />,
-      //   loader: storeLoader 
-      // },
+      {
+        path: "login",
+        element: <Login />,
+      },
       // {
       //   path: "team/:teamName",
       //   element: <TeamPage />,
