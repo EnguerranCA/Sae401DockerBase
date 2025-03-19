@@ -8,9 +8,9 @@ export default function Home() {
 
   return (
     <>
-      <div className="content flex flex-col space-y-5 items-center my-20">
+      <div className="content flex flex-col space-y-5 items-center">
         <TweetFeed />
-        <Link to="/about"><button className="bg-gray-500/50 px-3 rounded-full">Home</button></Link>
+        <Link to="/about"><button className="bg-gray-500/50 px-3 ">Home</button></Link>
       </div>
     </>
   );

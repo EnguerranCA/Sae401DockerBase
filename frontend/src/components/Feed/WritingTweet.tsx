@@ -29,7 +29,7 @@ const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets }) => {
   };
 
   return (
-    <div className="writing-tweet border-gray-300 rounded-lg p-4 w-full mx-auto bg-white">
+    <div className="writing-tweet  rounded-lg p-4 w-full mx-auto bg-white">
       <div className="flex items-start">
         <Avatar src="../src/assets/images/default_pp.png" alt="User Avatar" size={64} />
         <textarea
@@ -37,7 +37,7 @@ const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets }) => {
           onChange={handleTweetChange}
           placeholder="What's happening?"
           rows={4}
-          className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full p-2   rounded-lg focus:outline-none 2 "
         />
       </div>
       <div className="tweet-footer flex justify-between items-center mt-2">
