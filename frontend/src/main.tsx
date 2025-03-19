@@ -8,6 +8,7 @@ import Home from "./routes/home";
 import Login from "./routes/login";
 
 import "./index.css";
+import SignIn from "./routes/signin";
 
 const router = createBrowserRouter([
   {
@@ -22,6 +23,11 @@ const router = createBrowserRouter([
         path: "login",
         element: <Login />,
       },
+      {
+        path: "signin",
+        element: <SignIn />,
+      },
+
       // {
       //   path: "team/:teamName",
       //   element: <TeamPage />,

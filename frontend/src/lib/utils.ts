@@ -15,20 +15,19 @@ export const getRequest = async (url: string) => {
 };
 
 
-export const postRequests = async (url: string, body: any) => {
+export const postRequests = async (url: string) => {
   try {
-    const response = await fetch(`${url}`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data = await response.json();
-    return data;
+    // const data = await response.json();
+    return true;
   } catch (error) {
     console.error('Error posting data:', error);
     throw error;
