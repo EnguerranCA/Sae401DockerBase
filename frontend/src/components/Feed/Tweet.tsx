@@ -36,7 +36,7 @@ const Tweet = ({ username, message }: TweetProps) => {
       <Avatar src="../src/assets/images/default_pp.png" alt="User Avatar" size={64} />
       <div className="flex mb-2 flex-col">
         <Username name="User" username={username} />
-        <p className="text-gray-700">{message}</p>
+        <p className="text-gray-700 break-words break-all">{message}</p>
       </div>
     </div>
   );

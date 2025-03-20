@@ -5,13 +5,14 @@ import ProfileButton from '../ProfileButton';
 
 import { useEffect, useState } from 'react';
 
+
+
 // Load the data for the current user
 export default function NavBar() {
-  // Test with the user with ID 1
   const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
-    Users.getUserInfo(1).then(user => setCurrentUser(user));
+    Users.getCurrentUserInfo().then(user => setCurrentUser(user));
   }, []);
   
   return (

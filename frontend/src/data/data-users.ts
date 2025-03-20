@@ -1,5 +1,6 @@
 import { getRequest, postRequests } from "../lib/utils";
 
+
 const Users = {
     getUserInfo: async (userId: number) => {
         try {
@@ -11,6 +12,12 @@ const Users = {
             throw error;
         }
     },
+    getCurrentUserInfo: async () => {
+        let currentUserId = Number(localStorage.getItem('currentUserId'));
+        console.log('currentUserId:', currentUserId);
+        return await Users.getUserInfo(currentUserId);
+    }
+
 
     // createOnePost: async (content: string) => {
     //     try {

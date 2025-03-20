@@ -2,11 +2,21 @@ import React, { useEffect, useState } from 'react';
 import Tweet from './Tweet';
 import WritingTweet from './WritingTweet';
 import Posts from '../../data/data-posts';
+import Users from '../../data/data-users';
+
 
 // Save the current page number
 let page = 1;
 
 const TweetFeed = () => {
+  // Load the data for the current user
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    Users.getCurrentUserInfo().then(user => setCurrentUser(user));
+  }, []);
+
+
   const [tweets, setTweets] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +68,14 @@ const TweetFeed = () => {
   return (
     <div className="flex flex-col items-center w-1/3 border">
       {error && <div className="text-red-500">{error}</div>}
-      <WritingTweet refreshTweets={() => fetchTweets()} />
+      {currentUser && (
+        <WritingTweet
+          user={currentUser}
+          className="w-10 h-10"
+          refreshTweets={() => fetchTweets()}
+        />
+      )}
+
       {tweets.map((tweet) => (
         <Tweet key={tweet.id} username={`User ${tweet.id}`} message={tweet.content} />
       ))}

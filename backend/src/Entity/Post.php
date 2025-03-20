@@ -20,6 +20,7 @@ class Post
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -48,6 +49,7 @@ class Post
 
         return $this;
     }
+
 
     
 }

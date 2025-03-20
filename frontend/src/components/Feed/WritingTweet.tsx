@@ -4,9 +4,15 @@ import Posts from '../../data/data-posts';
 
 interface WritingTweetProps {
   refreshTweets: () => void;
+  user: {
+    avatar: string;
+    name: string;
+    username: string;
+  };
+  className?: string;
 }
 
-const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets }) => {
+const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
   const [tweet, setTweet] = useState('');
   const [charCount, setCharCount] = useState(0);
 
@@ -17,6 +23,7 @@ const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets }) => {
       setCharCount(tweetText.length);
     }
   };
+
   const handlePostTweet = async () => {
     try {
       await Posts.createOnePost(tweet);
@@ -29,19 +36,19 @@ const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets }) => {
   };
 
   return (
-    <div className="writing-tweet  rounded-lg p-4 w-full mx-auto bg-white">
+    <div className="writing-tweet rounded-lg p-4 w-full mx-auto bg-white">
       <div className="flex items-start">
-        <Avatar src="../src/assets/images/default_pp.png" alt="User Avatar" size={64} />
+        <Avatar src={user.avatar} alt={user.username} size={64} />
         <textarea
           value={tweet}
           onChange={handleTweetChange}
           placeholder="What's happening?"
           rows={4}
-          className="w-full p-2   rounded-lg focus:outline-none 2 "
+          className="w-full p-2 rounded-lg focus:outline-none"
         />
       </div>
       <div className="tweet-footer flex justify-between items-center mt-2">
-        <span className="text-gray-500">{charCount}/280</span>
+        <span className={`text-gray-500 ${charCount > 260 && charCount < 280 ? 'text-orange-500' : ''} ${charCount === 280 ? 'text-red-500' : ''}`}>{charCount}/280</span>
         <button
           onClick={handlePostTweet}
           disabled={charCount === 0}
