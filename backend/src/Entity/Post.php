@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\PostRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\Ignore as JsonIgnore;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
 class Post
@@ -12,14 +14,22 @@ class Post
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['post:read', 'post:write'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 280)]
+    #[Groups(['post:read', 'post:write'])]
     private ?string $content = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    #[Groups(['post:read', 'post:write'])]
     private ?\DateTimeInterface $created_at = null;
 
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    #[ORM\JoinColumn(nullable: true)]
+    #[JsonIgnore]
+    #[Groups(['post:read', 'post:write'])]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -50,6 +60,15 @@ class Post
         return $this;
     }
 
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
 
-    
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
 }

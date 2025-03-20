@@ -38,9 +38,25 @@ final class PostController extends AbstractController
         $previousPage = $page > 1 ? $page - 1 : null;
         $nextPage = count($paginator) > 0 ? $page + 1 : null;
 
+        // Format the posts with user details
+        $posts = [];
+        foreach ($paginator as $post) {
+            $user = $post->getUser();
+            $posts[] = [
+                'id' => $post->getId(),
+                'content' => $post->getContent(),
+                'created_at' => $post->getCreatedAt(),
+                'user' => [
+                    'name' => $user ? $user->getName() : null,
+                    'username' => $user ? $user->getUsername() : null,
+                    'avatar' => $user ? $user->getAvatar() : null,
+                ]
+            ];
+        }
+
         // Return the paginated posts
         return $this->json([
-            'posts' => $paginator,
+            'posts' => $posts,
             'previous_page' => $previousPage,
             'next_page' => $nextPage
         ]);
@@ -52,7 +68,22 @@ final class PostController extends AbstractController
     {
         $post = $postRepository->findOnePost($id);
 
-        return $this->json($post);
+        if (!$post) {
+            return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $user = $post->getUser();
+
+        return $this->json([
+            'id' => $post->getId(),
+            'content' => $post->getContent(),
+            'created_at' => $post->getCreatedAt(),
+            'user' => [
+                'name' => $user ? $user->getName() : null,
+                'username' => $user ? $user->getUsername() : null,
+                'avatar' => $user ? $user->getAvatar() : null,
+            ]
+        ]);
     }
 
     // Create a new post
