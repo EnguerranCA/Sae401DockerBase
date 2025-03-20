@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -67,6 +68,13 @@ final class UserController extends AbstractController
             'avatar' => $user->getAvatar(),
             // Add other fields you want to expose
         ]);
+    }
+
+    #[Route('/api/me', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function me(): Response
+    {
+        return $this->json([$this->getUser()]);
     }
     
 }
