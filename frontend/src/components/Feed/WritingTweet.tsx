@@ -26,7 +26,7 @@ const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
 
   const handlePostTweet = async () => {
     try {
-      await Posts.createOnePost(tweet);
+      await Posts.createOnePost(tweet, user.username);
       setTweet('');
       setCharCount(0);
       refreshTweets(); // Call the function to refresh the feed

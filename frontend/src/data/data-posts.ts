@@ -21,9 +21,9 @@ const Posts = {
         }
     },
 
-    createOnePost: async (content: string) => {
+    createOnePost: async (content: string, username: string) => {
         try {
-            const response = await postRequests('http://localhost:8080/posts?content=' + content);
+            const response = await postRequests('http://localhost:8080/posts?content=' + content + '&username=' + username);
             return response;
         } catch (error) {
             console.error('Error creating post:', error);

@@ -3,11 +3,15 @@ import Avatar from '../../ui/Avatar';
 import Username from '../../ui/Username';
 
 interface TweetProps {
-  username: string;
   message: string;
+  user: {
+    avatar: string;
+    name: string;
+    username: string;
+  };
 }
 
-const Tweet = ({ username, message }: TweetProps) => {
+const Tweet = ({ user, message }: TweetProps) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,9 +37,9 @@ const Tweet = ({ username, message }: TweetProps) => {
 
   return (
     <div className="p-4  bg-white w-full flex gap-4 border">
-      <Avatar src="../src/assets/images/default_pp.png" alt="User Avatar" size={64} />
+      <Avatar src={user.avatar} alt="User Avatar" size={64} />
       <div className="flex mb-2 flex-col">
-        <Username name="User" username={username} />
+        <Username name={user.name} username={user.username} />
         <p className="text-gray-700 break-words break-all">{message}</p>
       </div>
     </div>

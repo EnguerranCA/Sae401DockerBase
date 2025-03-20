@@ -77,7 +77,7 @@ const TweetFeed = () => {
       )}
 
       {tweets.map((tweet) => (
-        <Tweet key={tweet.id} username={`User ${tweet.id}`} message={tweet.content} />
+        <Tweet key={tweet.id} user={tweet.user} message={tweet.content} />
       ))}
       {/* <button onClick={() => fetchMoreTweets()} className="bg-blue-500 text-white px-4 py-2 rounded-full">Load More</button> */}
     </div>

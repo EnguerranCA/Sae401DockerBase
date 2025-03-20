@@ -16,10 +16,13 @@ class CreatePostPayload
      * )
      */
     private string $content;
+    private string $username;
 
-    public function __construct(string $content) 
+
+    public function __construct(string $content, string $username) 
     {
         $this->content = $content;
+        $this->username = $username;
     }
 
     public function getContent(): string
@@ -30,5 +33,15 @@ class CreatePostPayload
     public function setContent(string $content): void
     {
         $this->content = $content;
+    }
+
+    public function getUsername(): string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(string $username): void
+    {
+        $this->username = $username;
     }
 }

@@ -90,10 +90,12 @@ final class PostController extends AbstractController
     #[Route('/posts', methods: ['POST'], format: 'json')]
     public function create(
         #[MapQueryParameter] string $content,
+        #[MapQueryParameter] string $username,
+
         PostService $postService
     ): Response {
         // Create a new post
-        $createPostPayload = new CreatePostPayload($content);
+        $createPostPayload = new CreatePostPayload($content, $username);
 
         // Create the post
         $postService->create($createPostPayload);
