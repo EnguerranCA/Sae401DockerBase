@@ -10,7 +10,6 @@ export default function Home() {
     <>
       <div className="content flex flex-col space-y-5 items-center">
         <TweetFeed />
-        <Link to="/about"><button className="bg-gray-500/50 px-3 ">Home</button></Link>
       </div>
     </>
   );

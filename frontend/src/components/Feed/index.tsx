@@ -66,8 +66,8 @@ const TweetFeed = () => {
   }, []);
 
   return (
-    <div className="flex flex-col items-center w-1/3 border">
-      {error && <div className="text-red-500">{error}</div>}
+    <div className="flex flex-col items-center w-full border md:w-1/3">
+      {error && <div className="text-red-500">{ error}</div>}
       {currentUser && (
         <WritingTweet
           user={currentUser}

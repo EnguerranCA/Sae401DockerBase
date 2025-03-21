@@ -8,7 +8,7 @@ interface UsernameProps {
 const Username = ({ name, username }: UsernameProps) => {
     return (
         <div className="flex ">
-            <div className=" flex flex gap-2">
+            <div className=" flex gap-2 flex-col md:flex-row">
                 <div className='font-bold'>{name}</div>
                 <div className="text-gray-500">@{username}</div>
             </div>

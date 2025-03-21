@@ -9,7 +9,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use Doctrine\ORM\EntityManagerInterface;
 
 
-
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
 
 use App\Repository\PostRepository;
@@ -23,7 +23,8 @@ use App\Entity\Post;
 final class PostController extends AbstractController
 {
     // Get all posts
-    #[Route('/posts', name:"post.index" ,methods: ['GET'])]
+    #[Route('/api/posts', name: "post.index", methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function index(Request $request, PostRepository $postRepository): Response
     {
         // Get the page parameter from the request, default to 1 if not provided
@@ -63,7 +64,7 @@ final class PostController extends AbstractController
     }
 
     // Get one post by id
-    #[Route('/posts/{id}', methods: ['GET'])]
+    #[Route('/api/posts/{id}', methods: ['GET'])]
     public function show(PostRepository $postRepository, int $id): Response
     {
         $post = $postRepository->findOnePost($id);
@@ -87,7 +88,7 @@ final class PostController extends AbstractController
     }
 
     // Create a new post
-    #[Route('/posts', methods: ['POST'], format: 'json')]
+    #[Route('/api/posts', methods: ['POST'], format: 'json')]
     public function create(
         #[MapQueryParameter] string $content,
         #[MapQueryParameter] string $username,

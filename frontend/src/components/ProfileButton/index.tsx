@@ -16,7 +16,7 @@ interface ProfileButtonProps {
 const ProfileButton = ({ user: { avatar, name, username } }: ProfileButtonProps) => {
   return (
     <button data-user="1" className="flex items-center p-2 bg-white rounded-lg shadow hover:bg-gray-100">
-      <Avatar src={avatar} alt={username} size={32} />
+      <Avatar src={avatar} alt={username} size={32} className="md:size-32 size-64" />
       <div className="ml-2">
         <Username name={name} username={username} />
       </div>

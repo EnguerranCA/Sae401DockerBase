@@ -7,6 +7,8 @@ import Root from "./routes/root";
 import Home from "./routes/home";
 import Login from "./routes/login";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+
 import "./index.css";
 import SignIn from "./routes/signin";
 
@@ -17,27 +19,21 @@ const router = createBrowserRouter([
     children: [
       {
         path: "home",
-        element: <Home />,
+        element: (
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        ),
       },
-      {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "signin",
-        element: <SignIn />,
-      },
-
-      // {
-      //   path: "team/:teamName",
-      //   element: <TeamPage />,
-      //   loader: teamLoader
-      // },
-      // {
-      //   path: "crash",
-      //   element: <Crash />
-      // }
     ],
+  },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "signin",
+    element: <SignIn />,
   },
 ]);
 

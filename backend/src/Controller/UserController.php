@@ -9,27 +9,15 @@ use Symfony\Component\Routing\Attribute\Route;
 
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Doctrine\ORM\EntityManagerInterface;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
-
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserController extends AbstractController
 {
-    #[Route('/users/login', name: 'user_login')]
-    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
-    {
-        // get the login error if there is one
-        $error = $authenticationUtils->getLastAuthenticationError();
-        // last username entered by the user
-        $lastUsername = $authenticationUtils->getLastUsername();
-
-        if ($this->getUser()) {
-            return $this->redirect('http://localhost:8090/home');
-        }
-        
-        return new Response("Error: " . $error);
-    }
+    
 
     #[Route('/users/logout', name: 'user_logout')]
     public function logout()
@@ -69,12 +57,23 @@ final class UserController extends AbstractController
             // Add other fields you want to expose
         ]);
     }
-
+    
     #[Route('/api/me', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function me(): Response
     {
-        return $this->json([$this->getUser()]);
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return $this->json([
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'avatar' => $user->getAvatar(),
+        ]);
     }
     
 }

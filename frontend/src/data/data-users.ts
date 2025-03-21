@@ -13,10 +13,19 @@ const Users = {
         }
     },
     getCurrentUserInfo: async () => {
-        let currentUserId = Number(localStorage.getItem('currentUserId'));
-        console.log('currentUserId:', currentUserId);
-        return await Users.getUserInfo(currentUserId);
-    }
+        try {
+            const user = await getRequest('http://localhost:8080/api/me');
+            return user;
+        }
+        catch (error) {
+            console.error('Error loading user:', error);
+            throw error;
+        }
+    },
+    logout: () => {
+        localStorage.removeItem('apiToken');
+        
+    },
 
 
     // createOnePost: async (content: string) => {
