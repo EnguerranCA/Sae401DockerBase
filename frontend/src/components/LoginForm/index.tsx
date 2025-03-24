@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import SubmitButton from "../../ui/Buttons/SubmitButton"
 
 const LoginForm = () => {
     const [username, setUsername] = useState('');
@@ -20,13 +21,20 @@ const LoginForm = () => {
                 body: JSON.stringify({ username, password }),
             });
 
-            if (!response.ok) {
-                throw new Error('Login failed');
+            if (!response.ok) { 
+                const errorData = await response.json();
+                if (errorData.message === 'Email not verified') {
+                    localStorage.setItem('tempUsername', username);
+                    navigate('/verify');
+                } else {
+                    throw new Error('Login failed');
+                }
             }
 
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
             console.log(data.token);
+            localStorage.removeItem('tempUsername');
             navigate('/home');
         } catch (error) {
             setError('Invalid username or password');
@@ -68,12 +76,7 @@ const LoginForm = () => {
             {error && <div className="text-red-500 text-xs italic">{error}</div>}
 
             <div className="flex items-center justify-between">
-                <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:border-blue-500 w-full"
-                    type="submit"
-                >
-                    Connexion
-                </button>
+                <SubmitButton text="Connexion" variant='blue'/>
             </div>
 
             <div className="text-center mt-4">

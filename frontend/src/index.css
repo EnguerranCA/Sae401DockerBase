@@ -1,14 +1,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Custom Theme */
+  --clr-white: 0 0% 100%;
+  --clr-dark-grey: 0 0% 10%;
+  --clr-primary: 211 161 29 ;
+  --foreground: var(--clr-dark-grey);
+  --background: var(--clr-white);
+
+  --radius: 0.5rem;
+  --gap: 1rem;
+}
 
 @layer base {
   :root {
     /* Primitives Tokens  */
     --clr-white: 0 0% 100%;
     --clr-dark-grey: 0 0% 10%;
+    --clr-primary: 211 161 29 ;
     /* Sementics Tokens */
     --foreground: var(--clr-dark-grey);
     --background: var(--clr-white);

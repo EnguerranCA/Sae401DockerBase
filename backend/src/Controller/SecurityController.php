@@ -34,10 +34,14 @@ final class SecurityController extends AbstractController
             return $this->json(['message' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
         }
 
+        if (!$user->getIsVerified()) {
+            return $this->json(['message' => 'Email not verified'], Response::HTTP_UNAUTHORIZED);
+        }
+
         return $this->json(['token' => $user->getApiToken()]);
     }
 
-    #[Route('/api/register', name: 'user_register', methods: ['POST'])]
+    #[Route('/register', name: 'user_register', methods: ['POST'])]
     public function register(Request $request, UserPasswordHasherInterface $passwordEncoder, EntityManagerInterface $entityManager, MailerInterface $mailer): Response
     {
         $data = json_decode($request->getContent(), true);
@@ -89,8 +93,8 @@ final class SecurityController extends AbstractController
         return $this->json(['token' => $user->getApiToken()]);
     }
 
-    #[Route('/api/verify', name: 'user_verify', methods: ['POST'])]
-    public function verify(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/verify', name: 'user_verify', methods: ['POST'])]
+    public function verify(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager, UserPasswordHasherInterface $passwordEncoder): Response
     {
         $data = json_decode($request->getContent(), true);
 
@@ -109,7 +113,12 @@ final class SecurityController extends AbstractController
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return $this->json(['message' => 'User verified']);
+        // Log the user in by generating a new API token
+        $user->setApiToken(bin2hex(random_bytes(60)));
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json(['token' => $user->getApiToken()]);
     }
 
     #[Route('/security', name: 'app_security')]
@@ -118,6 +127,51 @@ final class SecurityController extends AbstractController
         return $this->render('security/index.html.twig', [
             'controller_name' => 'SecurityController',
         ]);
+    }
+
+    #[Route('/resend', name: 'resend', methods: ['POST'])]
+    public function resendVerification(Request $request, UserRepository $userRepository, MailerInterface $mailer, EntityManagerInterface $entityManager): Response
+    {
+        $data = json_decode($request->getContent(), true);
+        $username = $data['username'] ?? '';
+
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($user->getIsVerified()) {
+            return $this->json(['message' => 'Email already verified'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Generate a new 6-digit verification code
+        $verificationCode = random_int(100000, 999999);
+        $user->setVerificationCode($verificationCode);
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        // Render the email content using Twig
+        $emailContent = $this->renderView('mailer/index.html.twig', [
+            'name' => $user->getName(),
+            'verification_code' => $verificationCode,
+        ]);
+
+        // Send verification email
+        $emailMessage = (new Email())
+            ->from('no-reply@example.com')
+            ->to($user->getEmail())
+            ->subject('Email Verification')
+            ->html($emailContent);
+
+        try {
+            $mailer->send($emailMessage);
+        } catch (TransportExceptionInterface $e) {
+            return $this->json(['message' => 'Failed to send email'], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->json(['message' => 'Verification email resent']);
     }
 
     

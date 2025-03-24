@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Root from "./routes/root";
 import Home from "./routes/home";
 import Login from "./routes/login";
+import Verify from "./routes/verify";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
     path: "signin",
     element: <SignIn />,
   },
+  {
+    path: "verify",
+    element: <Verify />,
+  }
 ]);
 
 const rootElement = document.querySelector("#root");

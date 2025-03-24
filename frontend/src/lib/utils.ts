@@ -18,7 +18,7 @@ export const getRequest = async (url: string) => {
   }
 };
 
-export const postRequests = async (url: string) => {
+export const postRequests = async (url: string, body?: any) => {
   try {
     const response = await fetch(url, {
       method: 'POST',
@@ -26,11 +26,11 @@ export const postRequests = async (url: string) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${getApiToken()}`,
       },
+      body: body ? JSON.stringify(body) : undefined,
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    // const data = await response.json();
     return true;
   } catch (error) {
     console.error('Error posting data:', error);
