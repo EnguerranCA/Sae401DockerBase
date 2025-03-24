@@ -32,6 +32,8 @@ export default function SignInForm() {
         throw new Error('Sign in failed');
       }
 
+      localStorage.setItem('tempUsername', username);
+
       console.log('Sign in successful');
       navigate('/dashboard');
     } catch (error) {

@@ -53,6 +53,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $apiToken = null;
 
+    #[ORM\Column(length: 6, nullable: true)]
+    private ?string $verification_code = null;
+
+    #[ORM\Column]
+    private ?bool $is_verified = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -207,6 +213,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setApiToken(?string $apiToken): static
     {
         $this->apiToken = $apiToken;
+
+        return $this;
+    }
+
+    public function getVerificationCode(): ?string
+    {
+        return $this->verification_code;
+    }
+
+    public function setVerificationCode(?string $verification_code): static
+    {
+        $this->verification_code = $verification_code;
+
+        return $this;
+    }
+
+    public function isVerified(): ?bool
+    {
+        return $this->is_verified;
+    }
+
+    public function setIsVerified(bool $is_verified): static
+    {
+        $this->is_verified = $is_verified;
 
         return $this;
     }
