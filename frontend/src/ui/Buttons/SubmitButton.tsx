@@ -7,7 +7,7 @@ interface ButtonProps {
 }
 
 const buttonStyles = cva(
-    "  font-bold py-2 px-4 rounded-full focus:outline-none w-full",
+    "  font-bold py-2 px-4 rounded-full focus:outline-hidden w-full",
     {
         variants: {
             variant: {

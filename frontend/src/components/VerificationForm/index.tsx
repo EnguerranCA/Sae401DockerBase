@@ -43,7 +43,7 @@ const VerificationForm = () => {
                     id="username"
                     autoComplete="username"
                     required
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
                     value={username || ''}
                     onChange={(e) => {
                         setUsername(e.target.value);
@@ -59,7 +59,7 @@ const VerificationForm = () => {
                     autoComplete="verification_code"
                     required
                     autoFocus
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
                     value={verification_code}
                     onChange={(e) => setVerificationCode(e.target.value)}
                 />
@@ -69,13 +69,13 @@ const VerificationForm = () => {
             <div className="flex items-center justify-between">
                 <button
                     type="button"
-                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:border-gray-500"
+                    className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-gray-500"
                     onClick={() => Users.resendVerification(username)}
                 >
                     Resend
                 </button>
                 <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:border-blue-500 w-full"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-blue-500 w-full"
                     type="submit"
                 >
                     Verify

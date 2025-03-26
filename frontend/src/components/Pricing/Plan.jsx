@@ -40,7 +40,7 @@ export default function Plan({label, price, advantages, onOrder=null}) {
            
             {onOrder && <button type="button"
               onClick={()=>{onOrder(label)}}
-              className="inline-block w-full rounded bg-primary-100 px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-none focus:ring-0 active:bg-primary-accent-200"
+              className="inline-block w-full rounded bg-primary-100 px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-primary-700 transition duration-150 ease-in-out hover:bg-primary-accent-100 focus:bg-primary-accent-100 focus:outline-hidden focus:ring-0 active:bg-primary-accent-200"
               data-te-ripple-init data-te-ripple-color="light">
               Acheter
             </button>}

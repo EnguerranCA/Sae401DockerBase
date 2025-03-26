@@ -53,7 +53,7 @@ const LoginForm = () => {
                     autoComplete="username"
                     required
                     autoFocus
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
@@ -67,7 +67,7 @@ const LoginForm = () => {
                     id="password"
                     autoComplete="current-password"
                     required
-                    className="appearance-none  rounded w-full py-1 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+                    className="appearance-none  rounded w-full py-1 px-3 text-gray-700 mb-3 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />

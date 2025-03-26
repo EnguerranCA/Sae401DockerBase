@@ -44,7 +44,7 @@ const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
           onChange={handleTweetChange}
           placeholder="What's happening?"
           rows={4}
-          className="w-full p-2 rounded-lg focus:outline-none"
+          className="w-full p-2 rounded-lg focus:outline-hidden"
         />
       </div>
       <div className="tweet-footer flex justify-between items-center mt-2">

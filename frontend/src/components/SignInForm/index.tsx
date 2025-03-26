@@ -52,7 +52,7 @@ export default function SignInForm() {
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
           required
         />
       </div>
@@ -64,7 +64,7 @@ export default function SignInForm() {
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
           required
         />
       </div>
@@ -76,7 +76,7 @@ export default function SignInForm() {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
           required
         />
       </div>
@@ -88,7 +88,7 @@ export default function SignInForm() {
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
           required
         />
       </div>
@@ -100,7 +100,7 @@ export default function SignInForm() {
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
           required
         />
       </div>
@@ -109,7 +109,7 @@ export default function SignInForm() {
 
       <div className="flex items-center justify-between">
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-none focus:border-blue-500 w-full"
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-blue-500 w-full"
           type="submit"
         >
           Inscription
