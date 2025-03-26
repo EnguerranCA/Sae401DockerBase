@@ -36,6 +36,26 @@ const Users = {
             throw error;
         }
     },
+    getAllUsers: async () => {
+        try {
+            const users = await getRequest('http://localhost:8080/api/admin/users');
+            return users;
+        }
+        catch (error) {
+            console.error('Error loading users:', error);
+            throw error;
+        }
+    },
+    getUserInfoAdmin: async (username: string) => {
+        try {
+            const user = await getRequest('http://localhost:8080/api/admin/users/' + username);
+            return user;
+        }
+        catch (error) {
+            console.error('Error loading user:', error);
+            throw error;
+        }
+    }
 
 
 };

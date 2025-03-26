@@ -20,7 +20,7 @@ const LoginForm = () => {
                 },
                 body: JSON.stringify({ username, password }),
             });
-
+            
             if (!response.ok) { 
                 const errorData = await response.json();
                 if (errorData.message === 'Email not verified') {
@@ -31,11 +31,17 @@ const LoginForm = () => {
                 }
             }
 
+
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
-            console.log(data.token);
+
             localStorage.removeItem('tempUsername');
+
+            if (data.role === 'admin') {
+                navigate('/admin');
+            } else {
             navigate('/home');
+            }   
         } catch (error) {
             setError('Invalid username or password');
         }

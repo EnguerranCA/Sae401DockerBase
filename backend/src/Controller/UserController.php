@@ -75,5 +75,121 @@ final class UserController extends AbstractController
             'avatar' => $user->getAvatar(),
         ]);
     }
-    
+
+
+    // Admin routes
+    #[Route('/api/admin/users/{id}', methods: ['GET'])]
+    // #[IsGranted('ROLE_ADMIN')]
+    public function adminShow(UserRepository $userRepository, int $id): Response
+    {
+        $user = $userRepository->findOneById($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException('The user does not exist');
+        }
+
+        return $this->json([
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles(),
+            'avatar' => $user->getAvatar(),
+            'apiToken' => $user->getApiToken(),
+            'verification_code' => $user->getVerificationCode(),
+            'isVerified' => $user->getIsVerified(),
+            // Add other fields you want to expose
+        ]);
+    }
+
+    #[Route('/api/admin/users', methods: ['GET'])]
+    public function adminIndex(UserRepository $userRepository): Response
+    {
+        $users = $userRepository->findAll();
+
+        $data = [];
+        $data['users'] = [];
+
+        foreach ($users as $user) {
+            $data['users'][] = [
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles(),
+            'avatar' => $user->getAvatar(),
+            'apiToken' => $user->getApiToken(),
+            'verification_code' => $user->getVerificationCode(),
+            'isVerified' => $user->getIsVerified(),
+            // Add other fields you want to expose
+            ];
+        }
+        
+
+        return $this->json($data);
+    }
+
+    #[Route('/api/admin/users/{id}', methods: ['PATCH'])]
+    public function updateUser(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, int $id): Response
+    {
+        $user = $userRepository->findOneById($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException('The user does not exist');
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['username'])) {
+            $user->setUsername($data['username']);
+        }
+
+        if (isset($data['name'])) {
+            $user->setName($data['name']);
+        }
+
+        if (isset($data['email'])) {
+            $user->setEmail($data['email']);
+        }
+
+        if (isset($data['roles'])) {
+            $user->setRoles($data['roles']);
+        }
+
+        if (isset($data['avatar'])) {
+            $user->setAvatar($data['avatar']);
+        }
+
+        if (isset($data['password'])) {
+            $hashedPassword = $passwordHasher->hashPassword($user, $data['password']);
+            $user->setPassword($hashedPassword);
+        }
+
+        if (isset($data['apiToken'])) {
+            $user->setApiToken($data['apiToken']);
+        }
+
+        if (isset($data['verification_code'])) {
+            $user->setVerificationCode($data['verification_code']);
+        }
+
+        if (isset($data['isVerified'])) {
+            $user->setIsVerified($data['isVerified']);
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'email' => $user->getEmail(),
+            'roles' => $user->getRoles(),
+            'avatar' => $user->getAvatar(),
+            'apiToken' => $user->getApiToken(),
+            'verification_code' => $user->getVerificationCode(),
+            'isVerified' => $user->getIsVerified(),
+        ]);
+    }
+
 }

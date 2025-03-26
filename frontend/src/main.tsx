@@ -7,11 +7,13 @@ import Root from "./routes/root";
 import Home from "./routes/home";
 import Login from "./routes/login";
 import Verify from "./routes/verify";
+import Admin from "./routes/admin";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import "./index.css";
 import SignIn from "./routes/signin";
+import ProfileEditor from "./components/Dashboard/ProfileEditor";
 
 const router = createBrowserRouter([
   {
@@ -25,7 +27,8 @@ const router = createBrowserRouter([
             <Home />
           </ProtectedRoute>
         ),
-      },
+      }
+
     ],
   },
   {
@@ -39,6 +42,24 @@ const router = createBrowserRouter([
   {
     path: "verify",
     element: <Verify />,
+  },
+  {
+    path: "admin",
+    element: (
+      <ProtectedRoute>
+        <Admin />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "edit/:username",
+        element: (
+          <ProtectedRoute>
+            <ProfileEditor />
+          </ProtectedRoute>
+        ),
+      },
+    ]
   }
 ]);
 
