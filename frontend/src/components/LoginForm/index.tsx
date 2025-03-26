@@ -38,7 +38,7 @@ const LoginForm = () => {
             localStorage.removeItem('tempUsername');
 
             if (data.role === 'admin') {
-                navigate('/admin');
+                window.location.href = 'http://localhost:8080/admin';
             } else {
             navigate('/home');
             }   

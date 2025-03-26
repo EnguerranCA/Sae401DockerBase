@@ -178,6 +178,4 @@ final class SecurityController extends AbstractController
 
         return $this->json(['message' => 'Verification email resent']);
     }
-
-    
 }
