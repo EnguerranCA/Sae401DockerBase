@@ -43,9 +43,9 @@ const LoginForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className="bg-white rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-center text-blue-500">Connexion</h1>
+            <h1 className="text-2xl font-bold mb-6 text-center text-primary">Connexion</h1>
 
-            <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-blue-500' : ''}`}>
+            <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-primary' : ''}`}>
                 <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="username">Nom d'utilisateur</label>
                 <input
                     name="username"
@@ -53,13 +53,13 @@ const LoginForm = () => {
                     autoComplete="username"
                     required
                     autoFocus
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                 />
             </div>
 
-            <div className={`mb-6 relative border rounded-md pt-2 ${password ? 'text-blue-500' : ''}`}>
+            <div className={`mb-6 relative border rounded-md pt-2 ${password ? 'text-primary' : ''}`}>
                 <label className="absolute left-2 text-gray-600 text-xs font-bold" htmlFor="password">Mot de passe </label>
                 <input
                     type="password"
@@ -67,7 +67,7 @@ const LoginForm = () => {
                     id="password"
                     autoComplete="current-password"
                     required
-                    className="appearance-none  rounded w-full py-1 px-3 text-gray-700 mb-3 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+                    className="appearance-none  rounded w-full py-1 px-3 text-gray-700 mb-3 leading-tight focus:outline-hidden focus:border-primary mt-4"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
@@ -76,11 +76,11 @@ const LoginForm = () => {
             {error && <div className="text-red-500 text-xs italic">{error}</div>}
 
             <div className="flex items-center justify-between">
-                <SubmitButton text="Connexion" variant='blue'/>
+                <SubmitButton text="Connexion" variant='primary'/>
             </div>
 
             <div className="text-center mt-4">
-                <Link to="/signin" className="text-blue-500 hover:text-blue-700">
+                <Link to="/signin" className="text-primary hover:text-primary">
                     Pas de compte ? Inscrivez-vous
                 </Link>
             </div>

@@ -3,7 +3,7 @@ import { cva } from "class-variance-authority";
 interface ButtonProps {
     text: string;
     className?: string;
-    variant?: 'blue' | 'border';
+    variant?: 'primary' | 'border';
 }
 
 const buttonStyles = cva(
@@ -11,12 +11,12 @@ const buttonStyles = cva(
     {
         variants: {
             variant: {
-                blue: "hover:bg-primary text-white bg-primary border-primary",
+                primary: "hover:bg-primary text-white bg-primary border-primary",
                 border: "border border-black hover:bg-black text-black hover:text-white", 
             },
         },
         defaultVariants: {
-            variant: 'blue',
+            variant: 'primary',
         },
     }
 );

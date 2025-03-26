@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import SubmitButton from "../../ui/Buttons/SubmitButton"
 
 export default function SignInForm() {
   const [name, setName] = useState('');
@@ -43,64 +44,64 @@ export default function SignInForm() {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-6 text-center text-blue-500">Inscription</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center text-primary">Inscription</h1>
 
-      <div className={`mb-6 relative border rounded-md pt-2 ${name ? 'text-blue-500' : ''}`}>
+      <div className={`mb-6 relative border rounded-md pt-2 ${name ? 'text-primary' : ''}`}>
         <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="name">Nom</label>
         <input
           type="text"
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
       </div>
 
-      <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-blue-500' : ''}`}>
+      <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-primary' : ''}`}>
         <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="username">Nom d'utilisateur</label>
         <input
           type="text"
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
       </div>
 
-      <div className={`mb-6 relative border rounded-md pt-2 ${email ? 'text-blue-500' : ''}`}>
+      <div className={`mb-6 relative border rounded-md pt-2 ${email ? 'text-primary' : ''}`}>
         <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="email">Email</label>
         <input
           type="email"
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
       </div>
 
-      <div className={`mb-6 relative border rounded-md pt-2 ${password ? 'text-blue-500' : ''}`}>
+      <div className={`mb-6 relative border rounded-md pt-2 ${password ? 'text-primary' : ''}`}>
         <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="password">Mot de passe</label>
         <input
           type="password"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
       </div>
 
-      <div className={`mb-6 relative border rounded-md pt-2 ${confirmPassword ? 'text-blue-500' : ''}`}>
+      <div className={`mb-6 relative border rounded-md pt-2 ${confirmPassword ? 'text-primary' : ''}`}>
         <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="confirmPassword">Confirmez le mot de passe</label>
         <input
           type="password"
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
-          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+          className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
       </div>
@@ -108,16 +109,12 @@ export default function SignInForm() {
       {error && <div className="text-red-500 text-xs italic">{error}</div>}
 
       <div className="flex items-center justify-between">
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-blue-500 w-full"
-          type="submit"
-        >
-          Inscription
-        </button>
+                <SubmitButton text="Inscription" variant='primary'/>
+
       </div>
 
       <div className="text-center mt-4">
-        <Link to="/login" className="text-blue-500 hover:text-blue-700">
+        <Link to="/login" className="text-primary hover:text-primary">
         Déjà un compte ? Connectez-vous
         </Link>
       </div>
