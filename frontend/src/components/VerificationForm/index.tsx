@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
 import Users from '../../data/data-users';
 
 const VerificationForm = () => {
@@ -35,15 +34,15 @@ const VerificationForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className="bg-white rounded px-8 pt-6 pb-8 mb-4 w-full max-w-lg mx-auto">
-            <h1 className="text-2xl font-bold mb-6 text-center text-blue-500">Verification</h1>
-            <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-blue-500' : ''}`}>
+            <h1 className="text-2xl font-bold mb-6 text-center text-primary">Verification</h1>
+            <div className={`mb-6 relative border rounded-md pt-2 ${username ? 'text-primary' : ''}`}>
                 <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="username">Username</label>
                 <input
                     name="username"
                     id="username"
                     autoComplete="username"
                     required
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
                     value={username || ''}
                     onChange={(e) => {
                         setUsername(e.target.value);
@@ -51,7 +50,7 @@ const VerificationForm = () => {
                     }}
                 />
             </div>
-            <div className={`mb-6 relative border rounded-md pt-2 ${verification_code ? 'text-blue-500' : ''}`}>
+            <div className={`mb-6 relative border rounded-md pt-2 ${verification_code ? 'text-primary' : ''}`}>
                 <label className="absolute left-2 text-gray-700 text-xs font-bold" htmlFor="verification_code">Verification Code</label>
                 <input
                     name="verification_code"
@@ -59,7 +58,7 @@ const VerificationForm = () => {
                     autoComplete="verification_code"
                     required
                     autoFocus
-                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-blue-500 mt-4"
+                    className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
                     value={verification_code}
                     onChange={(e) => setVerificationCode(e.target.value)}
                 />
@@ -75,7 +74,7 @@ const VerificationForm = () => {
                     Resend
                 </button>
                 <button
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-blue-500 w-full"
+                    className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-primary w-full"
                     type="submit"
                 >
                     Verify

@@ -7,7 +7,6 @@ import Root from "./routes/root";
 import Home from "./routes/home";
 import Login from "./routes/login";
 import Verify from "./routes/verify";
-import Admin from "./routes/admin";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -42,24 +41,6 @@ const router = createBrowserRouter([
   {
     path: "verify",
     element: <Verify />,
-  },
-  {
-    path: "admin",
-    element: (
-      <ProtectedRoute>
-        <Admin />
-      </ProtectedRoute>
-    ),
-    children: [
-      {
-        path: "edit/:username",
-        element: (
-          <ProtectedRoute>
-            <ProfileEditor />
-          </ProtectedRoute>
-        ),
-      },
-    ]
   }
 ]);
 

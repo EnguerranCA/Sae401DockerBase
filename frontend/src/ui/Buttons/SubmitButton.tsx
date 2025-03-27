@@ -24,7 +24,7 @@ const buttonStyles = cva(
 const SubmitButton = ({ text, className, variant }: ButtonProps) => {
     return (
         <button
-            className={`${buttonStyles({ variant })} ${className}`}
+            className={`${buttonStyles({ variant })} ${className} hover:cursor-pointer`}
             type="submit"
         >
             {text}
