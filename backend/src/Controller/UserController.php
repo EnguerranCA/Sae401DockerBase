@@ -192,4 +192,29 @@ final class UserController extends AbstractController
         ]);
     }
 
+    // Get all liked post from a user
+    #[Route('/api/users/{id}/liked-posts', methods: ['GET'])]
+    public function getLikedPosts(UserRepository $userRepository, int $id): Response
+    {
+        $user = $userRepository->findOneById($id);
+
+        if (!$user) {
+            throw $this->createNotFoundException('The user does not exist');
+        }
+
+        $likedPosts = $user->getLiked();
+
+        $data = [];
+        foreach ($likedPosts as $post) {
+            $data[] = [
+                'id' => $post->getId(),
+                'content' => $post->getContent(),
+                'createdAt' => $post->getCreatedAt(),
+                // Add other fields you want to expose
+            ];
+        }
+
+        return $this->json($data);
+    }
+
 }

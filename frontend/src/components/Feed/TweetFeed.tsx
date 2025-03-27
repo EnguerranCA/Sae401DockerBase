@@ -77,7 +77,7 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets }) => {
         className="bg-blue-500 text-white px-4 py-2 rounded-full absolute w-min"
       />
       {tweets.map((tweet) => (
-        <Tweet key={tweet.id} user={tweet.user} message={tweet.content} />
+        <Tweet key={tweet.id} user={tweet.user} message={tweet.content} likes={tweet.likes.count} hasLiked={tweet.likes.hasLiked} id={tweet.id}/>
       ))}
     </div>
   );

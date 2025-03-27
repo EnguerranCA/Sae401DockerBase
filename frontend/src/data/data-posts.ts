@@ -23,10 +23,46 @@ const Posts = {
 
     createOnePost: async (content: string, username: string) => {
         try {
-            const response = await postRequests('http://localhost:8080/api/posts?content=' + content + '&username=' + username);
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/posts?content=' + content + '&username=' + username, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             return response;
         } catch (error) {
             console.error('Error creating post:', error);
+            throw error;
+        }
+    },
+
+
+    likeOnePost: async (postId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/like', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error('Error liking post:', error);
+            throw error;
+        }
+    },
+
+    unlikeOnePost: async (postId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/unlike', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        } catch (error) {
+            console.error('Error unliking post:', error);
             throw error;
         }
     }
