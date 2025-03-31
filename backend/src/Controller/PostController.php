@@ -33,14 +33,20 @@ final class PostController extends AbstractController
         // Calculate the offset based on the page number
         $offset = ($page - 1) * 10;
 
-        // Get the paginated posts
-        $paginator = $postRepository->paginateAllOrderedByLatest($offset, 10);
+        // Check if the filter parameter is set to 'follow'
+        $filter = $request->query->get('filter');
+        $currentUser = $this->getUser();
+
+        if ($filter === 'follow') {
+            // Get posts only from followed users
+            $paginator = $postRepository->paginateFollowedUsersPosts($currentUser, $offset, 10);
+        } else {
+            // Get all posts
+            $paginator = $postRepository->paginateAllOrderedByLatest($offset, 10);
+        }
 
         $previousPage = $page > 1 ? $page - 1 : null;
         $nextPage = count($paginator) > 0 ? $page + 1 : null;
-
-        // Get the currently authenticated user
-        $currentUser = $this->getUser();
 
         // Format the posts with user details, likes, and whether the user has liked the post
         $posts = [];
@@ -183,5 +189,29 @@ final class PostController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Post unliked']);
+    }
+
+    // Delete a post if the user is the author
+    #[Route('/api/posts/{id}', methods: ['DELETE'])]
+    #[IsGranted('ROLE_USER')]
+    public function delete(PostRepository $postRepository, EntityManagerInterface $entityManager, int $id): Response
+    {
+        $post = $postRepository->findOnePost($id);
+
+        if (!$post) {
+            return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $currentUser = $this->getUser();
+
+        // Check if the user is the author of the post
+        if ($post->getUser() !== $currentUser) {
+            return $this->json(['message' => 'You are not authorized to delete this post'], Response::HTTP_FORBIDDEN);
+        }
+
+        $entityManager->remove($post);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Post deleted']);
     }
 }

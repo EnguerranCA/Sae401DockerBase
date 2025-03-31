@@ -1,4 +1,4 @@
-import { getRequest, postRequests } from "../lib/utils";
+import { getRequest, postRequests, deleteRequest } from "../lib/utils";
 
 const Posts = {
     loadAllPosts: async () => {
@@ -63,6 +63,17 @@ const Posts = {
             return response;
         } catch (error) {
             console.error('Error unliking post:', error);
+            throw error;
+        }
+    },
+
+    deleteOnePost: async (postId: number) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await deleteRequest('http://localhost:8080/api/posts/' + postId);
+            return response;
+        } catch (error) {
+            console.error('Error deleting post:', error);
             throw error;
         }
     }

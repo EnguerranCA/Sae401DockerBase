@@ -24,6 +24,7 @@ const Users = {
     },
     logout: () => {
         localStorage.removeItem('apiToken');
+        localStorage.removeItem('username');
         
     },
     resendVerification: async (username: string) => {
@@ -55,7 +56,38 @@ const Users = {
             console.error('Error loading user:', error);
             throw error;
         }
-    }
+    },
+    followUser: async (username: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/users/' + username + '/follow', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error('Error following user:', error);
+            throw error;
+        }
+    },
+    unfollowUser: async (username: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/users/' + username + '/unfollow' , {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error('Error unfollowing user:', error);
+            throw error;
+        }
+    },
+
 
 
 };

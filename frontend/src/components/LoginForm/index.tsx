@@ -34,6 +34,7 @@ const LoginForm = () => {
 
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
+            localStorage.setItem('username', username);
 
             localStorage.removeItem('tempUsername');
 

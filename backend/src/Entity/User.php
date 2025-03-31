@@ -67,10 +67,40 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Post::class, mappedBy: 'likes')]
     private Collection $liked;
 
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'blockers')]
+    #[ORM\JoinTable(name: 'user_blocked')]
+    private Collection $blockedUsers;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'blockedUsers')]
+    private Collection $blockers;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'followers')]
+    #[ORM\JoinTable(name: 'user_followed')]
+    private Collection $followedUsers;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'followedUsers')]
+    private Collection $followers;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
         $this->liked = new ArrayCollection();
+        $this->blockedUsers = new ArrayCollection();
+        $this->blockers = new ArrayCollection();
+        $this->followedUsers = new ArrayCollection();
+        $this->followers = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -272,6 +302,108 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         if ($this->liked->removeElement($liked)) {
             $liked->removeLike($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getBlockedUsers(): Collection
+    {
+        return $this->blockedUsers;
+    }
+
+    public function addBlockedUser(self $blockedUser): static
+    {
+        if (!$this->blockedUsers->contains($blockedUser)) {
+            $this->blockedUsers->add($blockedUser);
+        }
+
+        return $this;
+    }
+
+    public function removeBlockedUser(self $blockedUser): static
+    {
+        $this->blockedUsers->removeElement($blockedUser);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getBlockers(): Collection
+    {
+        return $this->blockers;
+    }
+
+    public function addBlocker(self $blocker): static
+    {
+        if (!$this->blockers->contains($blocker)) {
+            $this->blockers->add($blocker);
+            $blocker->addBlockedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBlocker(self $blocker): static
+    {
+        if ($this->blockers->removeElement($blocker)) {
+            $blocker->removeBlockedUser($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFollowedUsers(): Collection
+    {
+        return $this->followedUsers;
+    }
+
+    public function addFollowedUser(self $followedUser): static
+    {
+        if (!$this->followedUsers->contains($followedUser)) {
+            $this->followedUsers->add($followedUser);
+        }
+
+        return $this;
+    }
+
+    public function removeFollowedUser(self $followedUser): static
+    {
+        $this->followedUsers->removeElement($followedUser);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getFollowers(): Collection
+    {
+        return $this->followers;
+    }
+
+    public function addFollower(self $follower): static
+    {
+        if (!$this->followers->contains($follower)) {
+            $this->followers->add($follower);
+            $follower->addFollowedUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFollower(self $follower): static
+    {
+        if ($this->followers->removeElement($follower)) {
+            $follower->removeFollowedUser($this);
         }
 
         return $this;

@@ -38,6 +38,24 @@ export const postRequests = async (url: string, body?: any) => {
   }
 };
 
+export const deleteRequest = async (url: string) => {
+  try {
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${getApiToken()}`,
+      }
+      });
+      if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return true;
+  } catch (error) {
+    console.error('Error deleting data:', error);
+    throw error;
+  }
+};
+
 export const getApiToken = (): string | null => {
   return localStorage.getItem('apiToken');
 };

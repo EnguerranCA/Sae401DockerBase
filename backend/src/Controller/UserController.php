@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -17,7 +18,7 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class UserController extends AbstractController
 {
-    
+
 
     #[Route('/users/logout', name: 'user_logout')]
     public function logout()
@@ -57,7 +58,7 @@ final class UserController extends AbstractController
             // Add other fields you want to expose
         ]);
     }
-    
+
     #[Route('/api/me', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]
     public function me(): Response
@@ -112,19 +113,19 @@ final class UserController extends AbstractController
 
         foreach ($users as $user) {
             $data['users'][] = [
-            'id' => $user->getId(),
-            'username' => $user->getUsername(),
-            'name' => $user->getName(),
-            'email' => $user->getEmail(),
-            'roles' => $user->getRoles(),
-            'avatar' => $user->getAvatar(),
-            'apiToken' => $user->getApiToken(),
-            'verification_code' => $user->getVerificationCode(),
-            'isVerified' => $user->getIsVerified(),
-            // Add other fields you want to expose
+                'id' => $user->getId(),
+                'username' => $user->getUsername(),
+                'name' => $user->getName(),
+                'email' => $user->getEmail(),
+                'roles' => $user->getRoles(),
+                'avatar' => $user->getAvatar(),
+                'apiToken' => $user->getApiToken(),
+                'verification_code' => $user->getVerificationCode(),
+                'isVerified' => $user->getIsVerified(),
+                // Add other fields you want to expose
             ];
         }
-        
+
 
         return $this->json($data);
     }
@@ -217,4 +218,52 @@ final class UserController extends AbstractController
         return $this->json($data);
     }
 
+    // public function blockUser(UserRepository $userRepository, EntityManagerInterface $entityManager, int $id): JsonResponse
+    // {
+    //     $user = $this->getUser();
+    //     $userToBlock = $userRepository->find($id);
+
+    //     if (!$userToBlock) {
+    //         return $this->json(['error' => 'User not found'], 404);
+    //     }
+
+    //     $user->addBlockedUser($userToBlock);
+    //     $entityManager->flush();
+
+    //     return $this->json(['message' => 'User blocked successfully']);
+    // }
+
+    #[Route('/api/users/{username}/follow', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function followUser(UserRepository $userRepository, EntityManagerInterface $entityManager, string $username): JsonResponse
+    {
+        $user = $this->getUser();
+        $userToFollow = $userRepository->findOneBy(['username' => $username]);
+        
+        if (!$userToFollow) {
+            return $this->json(['error' => 'User not found'], 404);
+        }
+
+        $user->addFollowedUser($userToFollow);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'User followed successfully']);
+    }
+
+    #[Route('/api/users/{username}/unfollow', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function unfollowUser(UserRepository $userRepository, EntityManagerInterface $entityManager, string $username): JsonResponse
+    {
+        $user = $this->getUser();
+        $userToUnfollow = $userRepository->findOneBy(['username' => $username]);
+        
+        if (!$userToUnfollow) {
+            return $this->json(['error' => 'User not found'], 404);
+        }
+        
+        $user->removeFollowedUser($userToUnfollow);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'User unfollowed successfully']);
+    }
 }
