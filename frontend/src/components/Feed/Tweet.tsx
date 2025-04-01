@@ -6,6 +6,7 @@ import FollowButton from '../../ui/Buttons/FollowButton';
 
 import Users from '../../data/data-users';
 import Posts from '../../data/data-posts';
+import { useNavigate } from 'react-router-dom';
 
 interface TweetProps {
   message: string;
@@ -20,6 +21,7 @@ interface TweetProps {
 }
 
 const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentHasLiked, setHasLiked] = useState(hasLiked);
   const [currentLikes, setLikes] = useState(likes);
@@ -39,7 +41,7 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
         <div className="bg-gray-300 rounded-full h-16 w-16"></div>
         <div className="flex mb-2 flex-col gap-2 w-full">
           <div className="bg-gray-300 h-4 w-24 rounded"></div>
-        <div className="bg-gray-300 h-4 w-full rounded"></div>
+          <div className="bg-gray-300 h-4 w-full rounded"></div>
         </div>
       </div>
     );
@@ -54,26 +56,35 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
   return (
     <div className="p-4  bg-white w-full flex flex-col gap-4 border border-lightborder">
       <div className="flex gap-4">
-        <Avatar src={user.avatar} alt="User Avatar" size={64} />
+        <Avatar
+          src={user.avatar}
+          alt="User Avatar"
+          size={64}
+          onClick={() => navigate(`/profile/${user.username}`)}
+          className="cursor-pointer"
+        />
         <div className="flex mb-2 flex-col w-full">
           <div className='flex justify-between'>
-            <Username name={user.name} username={user.username} />
-            {isUserAuthor && (
-              <button
-                className="text-red-500 font-bold"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this post?')) {
-                    Posts.deleteOnePost(id);
-                  }
-                }}
-              >
-                Delete
-              </button>)}
+        <Username
+          name={user.name}
+          username={user.username}
+          onClick={() => navigate(`/profile/${user.username}`)}
+          className="cursor-pointer"
+        />
+        {isUserAuthor && (
+          <button
+            className="text-red-500 font-bold"
+            onClick={() => {
+          if (window.confirm('Are you sure you want to delete this post?')) {
+            Posts.deleteOnePost(id);
+          }
+            }}
+          >
+            Delete
+          </button>)}
           </div>
           <p className="text-gray-700 break-words break-all">{message}</p>
-
         </div>
-
       </div>
       <LikeButton
         number={currentLikes.toString()}

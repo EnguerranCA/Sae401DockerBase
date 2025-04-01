@@ -86,6 +86,49 @@ final class PostController extends AbstractController
         ]);
     }
 
+    // Get all posts from a username
+    #[Route('/api/posts/user/{username}', methods: ['GET'])]
+    public function getPostsByUsername(PostRepository $postRepository, string $username): Response
+    {
+        // Get posts by username
+        $posts = $postRepository->findPostsByUsername($username);
+
+        if (!$posts) {
+            return $this->json(['message' => 'No posts found for this user'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Format the posts with user details and likes
+        $formattedPosts = [];
+        foreach ($posts as $post) {
+            $user = $post->getUser();
+            $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
+
+            $formattedPosts[] = [
+                'id' => $post->getId(),
+                'content' => $post->getContent(),
+                'created_at' => $post->getCreatedAt(),
+                'user' => [
+                    'name' => $user ? $user->getName() : null,
+                    'username' => $user ? $user->getUsername() : null,
+                    'avatar' => $user ? $user->getAvatar() : null,
+                ],
+                'likes' => [
+                    'count' => count($likes),
+                    'users' => array_map(function ($likeUser) {
+                        return [
+                            'name' => $likeUser->getName(),
+                            'username' => $likeUser->getUsername(),
+                            'avatar' => $likeUser->getAvatar(),
+                        ];
+                    }, $likes->toArray())
+                ]
+            ];
+        }
+
+        return $this->json(['posts' => $formattedPosts]);
+    }
+    
+
     // Get one post by id
     #[Route('/api/posts/{id}', methods: ['GET'])]
     public function show(PostRepository $postRepository, int $id): Response

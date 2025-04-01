@@ -74,4 +74,17 @@ class PostRepository extends ServiceEntityRepository
 
         return new Paginator($query);
     }
+
+    public function findPostsByUsername($username): ?array
+    {
+        return $this->createQueryBuilder('p')
+            ->addSelect('u')
+            ->leftJoin('p.user', 'u')
+            ->andWhere('u.username = :username')
+            ->setParameter('username', $username)
+            ->orderBy('p.created_at', 'DESC')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
 }

@@ -1,3 +1,6 @@
+import { useNavigate } from 'react-router-dom';
+
+
 interface AvatarProps {
     src: string;
     alt: string;

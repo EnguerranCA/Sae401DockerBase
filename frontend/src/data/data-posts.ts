@@ -19,6 +19,15 @@ const Posts = {
             throw error;
         }
     },
+    loadUserPosts: async (username: string) => {
+        try {
+            const posts = await getRequest(`http://localhost:8080/api/posts/user/${username}`);
+            return posts;
+        } catch (error) {
+            console.error('Error loading user posts:', error);
+            throw error;
+        }
+    },
     loadPostsByPage: async (page: number) => {
         try {
             const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}`);

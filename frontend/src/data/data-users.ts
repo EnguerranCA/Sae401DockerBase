@@ -12,6 +12,16 @@ const Users = {
             throw error;
         }
     },
+    getUserInfoByUsername: async (username: string) => {
+        try {
+            const user = await getRequest('http://localhost:8080/api/users/' + username);
+            return user;
+        }
+        catch (error) {
+            console.error('Error loading user:', error);
+            throw error;
+        }
+    },
     getCurrentUserInfo: async () => {
         try {
             const user = await getRequest('http://localhost:8080/api/me');

@@ -93,6 +93,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'followedUsers')]
     private Collection $followers;
 
+    #[ORM\Column(length: 255)]
+    private ?string $website = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $location = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $banner = null;
+
+    #[ORM\Column(length: 500)]
+    private ?string $bio = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -405,6 +417,54 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->followers->removeElement($follower)) {
             $follower->removeFollowedUser($this);
         }
+
+        return $this;
+    }
+
+    public function getWebsite(): ?string
+    {
+        return $this->website;
+    }
+
+    public function setWebsite(string $website): static
+    {
+        $this->website = $website;
+
+        return $this;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): static
+    {
+        $this->location = $location;
+
+        return $this;
+    }
+
+    public function getBanner(): ?string
+    {
+        return $this->banner;
+    }
+
+    public function setBanner(string $banner): static
+    {
+        $this->banner = $banner;
+
+        return $this;
+    }
+
+    public function getBio(): ?string
+    {
+        return $this->bio;
+    }
+
+    public function setBio(string $bio): static
+    {
+        $this->bio = $bio;
 
         return $this;
     }

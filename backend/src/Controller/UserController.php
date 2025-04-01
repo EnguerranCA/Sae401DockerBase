@@ -55,9 +55,38 @@ final class UserController extends AbstractController
             'username' => $user->getUsername(),
             'name' => $user->getName(),
             'avatar' => $user->getAvatar(),
+            'bio' => $user->getBio(),
+            'banner' => $user->getBanner(),
+            'website' => $user->getWebsite(),
+
             // Add other fields you want to expose
         ]);
     }
+
+    // Get one user by username
+    #[Route('/api/users/{username}', methods: ['GET'])]
+    public function showByUsername(UserRepository $userRepository, string $username): Response
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+
+        if (!$user) {
+            throw $this->createNotFoundException('The user does not exist');
+        }
+
+        return $this->json([
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'avatar' => $user->getAvatar(),
+            'bio' => $user->getBio(),
+            'banner' => $user->getBanner(),
+            'website' => $user->getWebsite(),
+
+            // Add other fields you want to expose
+        ]);
+    }
+
+    
 
     #[Route('/api/me', methods: ['GET'])]
     #[IsGranted('ROLE_USER')]

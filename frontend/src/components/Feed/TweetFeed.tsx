@@ -29,7 +29,12 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
       let response;
       if (filter === 'follow') {
         response = await Posts.loadAllFollowedPosts(1); // Load tweets from followed users
-      } else {
+      }  else if (filter.includes('user')) {
+        const username = filter.split('/')[1]; // Extract user ID from filter
+        console.log('Fetching tweets for user:', username);
+        response = await Posts.loadUserPosts(username); // Load tweets from a specific user
+      }
+      else {
         response = await Posts.loadAllPosts(); // Load all tweets
       }
 
