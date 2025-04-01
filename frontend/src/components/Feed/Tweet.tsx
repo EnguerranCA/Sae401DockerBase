@@ -39,7 +39,7 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
         <div className="bg-gray-300 rounded-full h-16 w-16"></div>
         <div className="flex mb-2 flex-col gap-2 w-full">
           <div className="bg-gray-300 h-4 w-24 rounded"></div>
-          <div className="bg-gray-300 h-4 w-full rounded"></div>
+        <div className="bg-gray-300 h-4 w-full rounded"></div>
         </div>
       </div>
     );

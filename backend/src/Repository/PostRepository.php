@@ -59,4 +59,19 @@ class PostRepository extends ServiceEntityRepository
 
         return new Paginator($query);
     }
+
+    public function paginateFollowedUsersPosts($user, $offset, $count): Paginator
+    {
+        $query = $this->createQueryBuilder('p')
+            ->addSelect('u')
+            ->leftJoin('p.user', 'u')
+            ->where('u.id IN (:followedUsers)')
+            ->setParameter('followedUsers', $user->getFollowedUsers())
+            ->orderBy('p.created_at', 'DESC')
+            ->setFirstResult($offset)
+            ->setMaxResults($count)
+            ->getQuery();
+
+        return new Paginator($query);
+    }
 }

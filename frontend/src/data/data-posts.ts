@@ -10,7 +10,15 @@ const Posts = {
             throw error;
         }
     },
-
+    loadAllFollowedPosts: async (page: number) => {
+        try {
+            const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}&filter=follow`);
+            return posts;
+        } catch (error) {
+            console.error('Error loading followed posts:', error);
+            throw error;
+        }
+    },
     loadPostsByPage: async (page: number) => {
         try {
             const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}`);
@@ -20,7 +28,15 @@ const Posts = {
             throw error;
         }
     },
-
+    loadFollowedPostsByPage: async (page: number) => {
+        try {
+            const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}&filter=follow`);
+            return posts;
+        } catch (error) {
+            console.error('Error loading followed posts:', error);
+            throw error;
+        }
+    },
     createOnePost: async (content: string, username: string) => {
         try {
             const token = localStorage.getItem('token');
@@ -35,8 +51,6 @@ const Posts = {
             throw error;
         }
     },
-
-
     likeOnePost: async (postId: number) => {
         try {
             const token = localStorage.getItem('token');
@@ -51,7 +65,6 @@ const Posts = {
             throw error;
         }
     },
-
     unlikeOnePost: async (postId: number) => {
         try {
             const token = localStorage.getItem('token');
@@ -66,7 +79,6 @@ const Posts = {
             throw error;
         }
     },
-
     deleteOnePost: async (postId: number) => {
         try {
             const token = localStorage.getItem('token');

@@ -13,29 +13,45 @@ let page = 1;
 
 const MainPage = () => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [pageKey, setPageKey] = useState(1); // Use state for the key
+  const [pageKey, setPageKey] = useState(1); // Utilisé pour forcer le rechargement
+  const [filter, setFilter] = useState<string>('none'); // État pour le filtre
 
   useEffect(() => {
     Users.getCurrentUserInfo().then(user => setCurrentUser(user));
   }, []);
 
   const refreshFeed = () => {
-    setPageKey((prevKey) => prevKey + 1); // Increment the key to force re-render
+    setPageKey((prevKey) => prevKey + 1); // Incrémente la clé pour forcer le rechargement
+  };
+
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter); // Met à jour le filtre sélectionné
+    refreshFeed(); // Recharge le flux
   };
 
   return (
     <div className="flex flex-col items-center w-full border border-lightborder md:w-1/3">
-
       {currentUser && (
         <WritingTweet
           user={currentUser}
           className="w-10 h-10"
-          refreshTweets={refreshFeed} // Pass refreshFeed to WritingTweet
+          refreshTweets={refreshFeed} // Passe la fonction de rafraîchissement
         />
       )}
 
+      {/* Commutateur pour choisir entre "Tous les tweets" et "Tweets suivis" */}
+      <FeedSwitch
+        refreshTweets={refreshFeed}
+        tabs={[
+          { label: 'Home', filter: 'none' },
+          { label: 'Follow', filter: 'follow' },
+        ]}
+        onFilterChange={handleFilterChange} // Passe la fonction de changement de filtre
+      />
+
+      {/* Affiche les tweets en fonction du filtre */}
       <div className="flex flex-col items-center w-full relative" key={pageKey}>
-        <TweetFeed refreshTweets={refreshFeed} />
+        <TweetFeed refreshTweets={refreshFeed} filter={filter} />
       </div>
     </div>
   );
