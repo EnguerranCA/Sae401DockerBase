@@ -63,6 +63,27 @@ export const deleteRequest = async (url: string) => {
   }
 };
 
+export const patchRequest = async (url: string, data: any, body?: any) => {
+  try {
+    const response = await fetch(url, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${getApiToken()}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return true;
+  }
+  catch (error) {
+    console.error('Error patching data:', error);
+    throw error;
+  }
+};
+
 export const getApiToken = (): string | null => {
   return localStorage.getItem('apiToken');
 };

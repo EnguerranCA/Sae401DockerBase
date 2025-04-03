@@ -26,12 +26,18 @@ const BannerImageEdit = ({ size = 24, className }: BannerImageEditProps) => {
             } finally {
                 setIsUploading(false);
             }
+
+            window.location.reload();
+
         }
     };
 
     return (
         <div className={`flex flex-col items-center ${className}`}>
-            <label htmlFor="files" className="btn bg-gray-400 rounded-full w-8 h-8 flex items-center justify-center">✏️</label>
+            <label htmlFor="files" className="btn bg-primary rounded-full w-10 h-10 flex items-center justify-center hover:bg-primary-hover">
+            <img className="w-6 h-6" src="../src/assets/icons/pencil.svg" alt="Edit" />
+
+            </label>
             <input
             id="files"
             type="file"

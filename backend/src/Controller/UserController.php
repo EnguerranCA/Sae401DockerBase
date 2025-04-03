@@ -87,6 +87,7 @@ final class UserController extends AbstractController
             'bio' => $user->getBio(),
             'banner' => $user->getBanner(),
             'website' => $user->getWebsite(),
+            'location' => $user->getLocation(),
             'isFollowed' => $isFollowed,
 
             // Add other fields you want to expose
@@ -110,6 +111,61 @@ final class UserController extends AbstractController
             'username' => $user->getUsername(),
             'name' => $user->getName(),
             'avatar' => $user->getAvatar(),
+        ]);
+    }
+
+    // Edit user info
+    #[Route('/api/me', methods: ['PATCH'])]
+    #[IsGranted('ROLE_USER')]
+    public function edit(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['username'])) {
+            $user->setUsername($data['username']);
+        }
+
+        if (isset($data['name'])) {
+            $user->setName($data['name']);
+        }
+
+        if (isset($data['bio'])) {
+            $user->setBio($data['bio']);
+        }
+
+        if (isset($data['website'])) {
+            $user->setWebsite($data['website']);
+        }
+
+        if (isset($data['avatar'])) {
+            $user->setAvatar($data['avatar']);
+        }
+
+        if (isset($data['banner'])) {
+            $user->setBanner($data['banner']);
+        }
+
+        if (isset($data['location'])) {
+            $user->setLocation($data['location']);
+        }
+
+        $entityManager->flush();
+
+        return $this->json([
+            'id' => $user->getId(),
+            'username' => $user->getUsername(),
+            'name' => $user->getName(),
+            'avatar' => $user->getAvatar(),
+            'bio' => $user->getBio(),
+            'banner' => $user->getBanner(),
+            'website' => $user->getWebsite(),
+            'location' => $user->getLocation(),
         ]);
     }
 

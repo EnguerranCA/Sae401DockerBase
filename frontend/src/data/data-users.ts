@@ -1,4 +1,4 @@
-import { getRequest, postRequests } from "../lib/utils";
+import { getRequest, postRequests, patchRequest } from "../lib/utils";
 
 
 const Users = {
@@ -133,9 +133,23 @@ const Users = {
             console.error('Error updating banner:', error);
             throw error;
         }
+    },
+    updateUserInfo: async (data: { username?: string; name?: string; bio?: string; website?: string; avatar?: string; banner?: string }) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await patchRequest('http://localhost:8080/api/me', data, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error('Error updating user info:', error);
+            throw error;
+        }
     }
-
-
 };
 
 export default Users;

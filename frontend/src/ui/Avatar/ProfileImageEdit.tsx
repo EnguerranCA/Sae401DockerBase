@@ -26,12 +26,17 @@ const ProfileImageEdit = ({ size = 24, className }: ProfileImageEditProps) => {
             } finally {
                 setIsUploading(false);
             }
+
+            window.location.reload();
+
         }
     };
 
     return (
         <div className={`flex flex-col items-center ${className}`}>
-            <label htmlFor="profile-files" className="btn bg-gray-400 rounded-full w-8 h-8 flex items-center justify-center">✏️</label>
+            <label htmlFor="profile-files" className="btn bg-primary rounded-full w-10 h-10 flex items-center justify-center hover:bg-primary-hover">
+                <img className="w-6 h-6" src="../src/assets/icons/pencil.svg" alt="Edit" />
+            </label>
             <input
             id="profile-files"
             type="file"
