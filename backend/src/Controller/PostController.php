@@ -17,8 +17,11 @@ use App\Service\PostService;
 
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\DTO\CreatePostPayload;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 use App\Entity\Post;
+use App\Entity\Media;
+use App\Enum\MediaType;
 
 final class PostController extends AbstractController
 {
@@ -48,12 +51,18 @@ final class PostController extends AbstractController
         $previousPage = $page > 1 ? $page - 1 : null;
         $nextPage = count($paginator) > 0 ? $page + 1 : null;
 
-        // Format the posts with user details, likes, and whether the user has liked the post
+        // Format the posts with user details, likes, media paths, and whether the user has liked the post
         $posts = [];
         foreach ($paginator as $post) {
             $user = $post->getUser();
             $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
             $hasUserLiked = $likes->contains($currentUser);
+
+            // Get media paths
+            $mediaPaths = [];
+            foreach ($post->getMedias() as $media) {
+                $mediaPaths[] = $media->getPath();
+            }
 
             if ($user && $user->isBlocked()) {
                 $posts[] = [
@@ -69,7 +78,8 @@ final class PostController extends AbstractController
                         'count' => 0,
                         'hasLiked' => false,
                         'users' => []
-                    ]
+                    ],
+                    'media' => []
                 ];
             } else {
                 $posts[] = [
@@ -91,7 +101,8 @@ final class PostController extends AbstractController
                                 'avatar' => $likeUser->getAvatar(),
                             ];
                         }, $likes->toArray())
-                    ]
+                    ],
+                    'media' => $mediaPaths
                 ];
             }
         }
@@ -145,7 +156,7 @@ final class PostController extends AbstractController
 
         return $this->json(['posts' => $formattedPosts]);
     }
-    
+
 
     // Get one post by id
     #[Route('/api/posts/{id}', methods: ['GET'])]
@@ -183,21 +194,51 @@ final class PostController extends AbstractController
     }
 
     // Create a new post
-    #[Route('/api/posts', methods: ['POST'], format: 'json')]
+    #[Route('/api/posts', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
     public function create(
-        #[MapQueryParameter] string $content,
-        #[MapQueryParameter] string $username,
-
-        PostService $postService
+        Request $request,
+        EntityManagerInterface $entityManager
     ): Response {
-        // Create a new post
-        $createPostPayload = new CreatePostPayload($content, $username);
+        $currentUser = $this->getUser();
 
-        // Create the post
-        $postService->create($createPostPayload);
+        // Get the formData from the request
+        $content = $request->request->get('content');
 
-        // Return a response
-        return new Response('', Response::HTTP_CREATED);
+        if (!$content) {
+            return $this->json(['message' => 'Content is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Create a new Post entity
+        $post = new Post();
+        $post->setContent($content);
+        $post->setUser($currentUser);
+        $post->setCreatedAt(new \DateTime());
+
+        // Handle media files if provided
+        $mediaFiles = $request->files->get('media');
+        if ($mediaFiles) {
+            foreach ($mediaFiles as $mediaFile) {
+                if ($mediaFile instanceof UploadedFile) {
+                    $media = new Media();
+                    $newFilename = uniqid() . '.' . $mediaFile->guessExtension();
+                    $uploadsDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/media';
+                    $mediaFile->move($uploadsDirectory, $newFilename);
+                    $media->setPath($newFilename);
+
+                    $media->setType(MediaType::IMAGE); // Assuming all uploaded files are images
+
+                    $media->setPost($post);
+                    $entityManager->persist($media);
+                }
+            }
+        }
+
+        // Persist the post
+        $entityManager->persist($post);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'Post created successfully'], Response::HTTP_CREATED);
     }
 
     // Like a post
@@ -225,7 +266,7 @@ final class PostController extends AbstractController
 
         return $this->json(['message' => 'Post liked']);
     }
-    
+
     // Unlike a post
     #[Route('/api/posts/{id}/unlike', methods: ['POST'])]
     #[IsGranted('ROLE_USER')]

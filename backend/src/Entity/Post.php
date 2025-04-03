@@ -39,9 +39,16 @@ class Post
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'liked')]
     private Collection $likes;
 
+    /**
+     * @var Collection<int, Media>
+     */
+    #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'post')]
+    private Collection $medias;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
+        $this->medias = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -105,6 +112,36 @@ class Post
     public function removeLike(User $like): static
     {
         $this->likes->removeElement($like);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Media>
+     */
+    public function getMedias(): Collection
+    {
+        return $this->medias;
+    }
+
+    public function addMedia(Media $media): static
+    {
+        if (!$this->medias->contains($media)) {
+            $this->medias->add($media);
+            $media->setPost($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMedia(Media $media): static
+    {
+        if ($this->medias->removeElement($media)) {
+            // set the owning side to null (unless already changed)
+            if ($media->getPost() === $this) {
+                $media->setPost(null);
+            }
+        }
 
         return $this;
     }

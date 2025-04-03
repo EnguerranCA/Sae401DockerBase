@@ -7,6 +7,8 @@ import Users from '../../data/data-users';
 import Posts from '../../data/data-posts';
 import { useNavigate } from 'react-router-dom';
 
+import ImagesGallery from '../../ui/Media/ImagesGallery';
+
 interface TweetProps {
   message: string;
   user: {
@@ -17,9 +19,10 @@ interface TweetProps {
   likes: number;
   hasLiked: boolean;
   id: number;
+  images?: string[];
 }
 
-const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
+const Tweet = ({ user, message, likes, hasLiked, id, images }: TweetProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentHasLiked, setHasLiked] = useState(hasLiked);
@@ -52,6 +55,8 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
     isUserAuthor = user.username === currentUsername;
   }
 
+  console.log(images)
+
   return (
     <div className="p-4  bg-white w-full flex flex-col gap-4 border border-lightborder">
       <div className="flex gap-4">
@@ -63,25 +68,27 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
         />
         <div className="flex mb-2 flex-col w-full">
           <div className='flex justify-between'>
-        <Username
-          name={user.name}
-          username={user.username}
-        />
-        {isUserAuthor && (
-          <button
-        className="text-red-500 font-bold"
-        onClick={() => {
-          if (window.confirm('Are you sure you want to delete this post?')) {
-        Posts.deleteOnePost(id);
-          }
-        }}
-          >
-        Delete
-          </button>)}
+            <Username
+              name={user.name}
+              username={user.username}
+            />
+            {isUserAuthor && (
+              <button
+                className="text-red-500 font-bold"
+                onClick={() => {
+                  if (window.confirm('Are you sure you want to delete this post?')) {
+                    Posts.deleteOnePost(id);
+                  }
+                }}
+              >
+                Delete
+              </button>)}
           </div>
           <p className="text-gray-700 break-words break-all">{message}</p>
         </div>
       </div>
+      {images && <ImagesGallery variant='medium' images={images} className="w-full" /> }
+
       <LikeButton
         number={currentLikes.toString()}
         hasLiked={currentHasLiked}

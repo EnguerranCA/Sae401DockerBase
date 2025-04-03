@@ -46,14 +46,25 @@ const Posts = {
             throw error;
         }
     },
-    createOnePost: async (content: string, username: string) => {
+    createOnePost: async (content: string, mediaFiles?: File[]) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await postRequests('http://localhost:8080/api/posts?content=' + content + '&username=' + username, {
+            const token = localStorage.getItem('apiToken');
+            let formData = new FormData();
+            formData.append('content', content);
+            if (mediaFiles && mediaFiles.length > 0) {
+                mediaFiles.forEach((file, index) => {
+                    formData.append(`media[${index}]`, file);
+                });
+            }
+
+            console.log('FormData:', Array.from(formData.entries()));
+            
+
+            const response = await postRequests('http://localhost:8080/api/posts', {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 }
-            });
+            }, formData);
             return response;
         } catch (error) {
             console.error('Error creating post:', error);
@@ -62,7 +73,7 @@ const Posts = {
     },
     likeOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('apiToken');
             const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/like', {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -76,7 +87,7 @@ const Posts = {
     },
     unlikeOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('apiToken');
             const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/unlike', {
                 headers: {
                     Authorization: `Bearer ${token}`
@@ -90,7 +101,7 @@ const Posts = {
     },
     deleteOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('token');
+            const token = localStorage.getItem('apiToken');
             const response = await deleteRequest('http://localhost:8080/api/posts/' + postId);
             return response;
         } catch (error) {
