@@ -3,4 +3,7 @@
   
   @theme {
     --color-primary: #ff8000;
+    --color-primary-hover: #ee7700;
+
+    --color-lightborder: #e0e0e0;
   }

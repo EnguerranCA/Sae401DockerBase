@@ -38,7 +38,7 @@ const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
   return (
     <div className="writing-tweet rounded-lg p-4 w-full mx-auto bg-white">
       <div className="flex items-start">
-        <Avatar src={user.avatar} alt={user.username} size={64} />
+        <Avatar src={`http://localhost:8080/uploads/avatars/${user.avatar}`} alt={user.username} size={64} />
         <textarea
           value={tweet}
           onChange={handleTweetChange}
@@ -52,7 +52,7 @@ const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
         <button
           onClick={handlePostTweet}
           disabled={charCount === 0}
-          className={`px-4 py-2 rounded-full text-white ${charCount === 0 ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-600'}`}
+          className={`px-4 py-2 rounded-full text-white ${charCount === 0 ? 'bg-gray-400' : 'bg-primary hover:bg-primary-hover'}`}
         >
           Tweet
         </button>

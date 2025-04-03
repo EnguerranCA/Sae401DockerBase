@@ -34,6 +34,7 @@ const LoginForm = () => {
 
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
+            localStorage.setItem('username', username);
 
             localStorage.removeItem('tempUsername');
 
@@ -78,6 +79,8 @@ const LoginForm = () => {
                     onChange={(e) => setPassword(e.target.value)}
                 />
             </div>
+
+            
 
             {error && <div className="text-red-500 text-xs italic">{error}</div>}
 
