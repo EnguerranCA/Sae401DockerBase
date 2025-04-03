@@ -25,6 +25,8 @@ const VerificationForm = () => {
 
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
+            localStorage.setItem('username', username);
+
             console.log(data.token);
             navigate('/home');
         } catch (error) {
@@ -74,7 +76,7 @@ const VerificationForm = () => {
                     Resend
                 </button>
                 <button
-                    className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-primary w-full"
+                    className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-primary w-full"
                     type="submit"
                 >
                     Verify

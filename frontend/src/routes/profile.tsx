@@ -12,6 +12,7 @@ export default function Profile() {
     bio: string;
     avatar: string;
     banner: string;
+    isFollowed: boolean;
   } | null>(null);
   const { handle } = useParams<{ handle: string }>();
 

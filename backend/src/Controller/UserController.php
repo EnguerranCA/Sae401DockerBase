@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
 
 use App\Entity\User;
 use App\Repository\UserRepository;
@@ -65,13 +67,17 @@ final class UserController extends AbstractController
 
     // Get one user by username
     #[Route('/api/users/{username}', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
     public function showByUsername(UserRepository $userRepository, string $username): Response
     {
         $user = $userRepository->findOneBy(['username' => $username]);
+        $currentUser = $this->getUser();
 
         if (!$user) {
             throw $this->createNotFoundException('The user does not exist');
         }
+
+        $isFollowed = $currentUser->getFollowedUsers()->contains($user);
 
         return $this->json([
             'id' => $user->getId(),
@@ -81,6 +87,7 @@ final class UserController extends AbstractController
             'bio' => $user->getBio(),
             'banner' => $user->getBanner(),
             'website' => $user->getWebsite(),
+            'isFollowed' => $isFollowed,
 
             // Add other fields you want to expose
         ]);
@@ -294,5 +301,69 @@ final class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'User unfollowed successfully']);
+    }
+
+    #[Route('/api/users/avatar', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function uploadAvatar(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $uploadedFile = $request->files->get('avatar');
+
+        if (!$uploadedFile instanceof UploadedFile) {
+            return $this->json(['message' => 'No file uploaded or invalid file'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $uploadsDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/avatars';
+        $newFilename = uniqid() . '.' . $uploadedFile->guessExtension();
+
+        try {
+            $uploadedFile->move($uploadsDirectory, $newFilename);
+            $user->setAvatar($newFilename);
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            return $this->json(['message' => 'Failed to upload avatar', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->json(['message' => 'Avatar uploaded successfully', 'avatar' => $newFilename]);
+    }
+
+    #[Route('/api/users/banner', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function uploadBanner(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $uploadedFile = $request->files->get('banner');
+
+        if (!$uploadedFile instanceof UploadedFile) {
+            return $this->json(['message' => 'No file uploaded or invalid file'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $uploadsDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/banners';
+        $newFilename = uniqid() . '.' . $uploadedFile->guessExtension();
+
+        try {
+            $uploadedFile->move($uploadsDirectory, $newFilename);
+            $user->setBanner($newFilename);
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+        } catch (\Exception $e) {
+            return $this->json(['message' => 'Failed to upload banner', 'error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $this->json(['message' => 'Banner uploaded successfully', 'banner' => $newFilename]);
     }
 }

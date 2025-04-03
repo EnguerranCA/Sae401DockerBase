@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Avatar from '../../ui/Avatar';
 import Username from '../../ui/Username';
 import LikeButton from '../../ui/Buttons/LikeButton';
-import FollowButton from '../../ui/Buttons/FollowButton';
 
 import Users from '../../data/data-users';
 import Posts from '../../data/data-posts';
@@ -57,10 +56,9 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
     <div className="p-4  bg-white w-full flex flex-col gap-4 border border-lightborder">
       <div className="flex gap-4">
         <Avatar
-          src={user.avatar}
+          src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
           alt="User Avatar"
           size={64}
-          onClick={() => navigate(`/profile/${user.username}`)}
           className="cursor-pointer"
         />
         <div className="flex mb-2 flex-col w-full">
@@ -68,19 +66,17 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
         <Username
           name={user.name}
           username={user.username}
-          onClick={() => navigate(`/profile/${user.username}`)}
-          className="cursor-pointer"
         />
         {isUserAuthor && (
           <button
-            className="text-red-500 font-bold"
-            onClick={() => {
+        className="text-red-500 font-bold"
+        onClick={() => {
           if (window.confirm('Are you sure you want to delete this post?')) {
-            Posts.deleteOnePost(id);
+        Posts.deleteOnePost(id);
           }
-            }}
+        }}
           >
-            Delete
+        Delete
           </button>)}
           </div>
           <p className="text-gray-700 break-words break-all">{message}</p>
@@ -101,20 +97,6 @@ const Tweet = ({ user, message, likes, hasLiked, id }: TweetProps) => {
           setHasLiked(newHasLiked);
         }}
       />
-      {!isUserAuthor && (
-        <FollowButton
-          className="ml-auto"
-          hasFollow={false}
-          onClick={(hasFollow) => {
-            // Handle follow/unfollow logic here
-            if (hasFollow) {
-              Users.unfollowUser(user.username);
-            } else {
-              Users.followUser(user.username);
-            }
-          }}
-          username={user.username}
-        />)}
     </div>
   );
 };

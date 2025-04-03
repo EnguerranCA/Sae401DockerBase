@@ -24,9 +24,9 @@ const FollowButton = ({ className, hasFollow = false, onClick, username }: Follo
     const [isFollowing, setIsFollowing] = useState(hasFollow);
 
     const handleClick = () => {
-        const newFollowState = !isFollowing;
-        setIsFollowing(newFollowState); // Update local state
-        onClick(newFollowState); // Notify parent
+        const newFollowState = isFollowing; // Fix the inversion
+        setIsFollowing(!newFollowState); // Update local state
+        onClick(!newFollowState); // Notify parent
     };
 
     return (
@@ -41,9 +41,9 @@ const FollowButton = ({ className, hasFollow = false, onClick, username }: Follo
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
             >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 13h-3v3h-4v-3H7v-4h3V8h4v3h3v4z" />
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
             </svg>
-            <span>{isFollowing ? "Following" : "Follow"}</span>
+            <span>{isFollowing ? "Unfollow" : "Follow"}</span>
         </button>
     );
 };

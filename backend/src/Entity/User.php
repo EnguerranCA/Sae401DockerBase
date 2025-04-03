@@ -105,6 +105,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 500)]
     private ?string $bio = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $isBlocked = null;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -465,6 +468,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBio(string $bio): static
     {
         $this->bio = $bio;
+
+        return $this;
+    }
+
+    public function isBlocked(): ?bool
+    {
+        return $this->isBlocked;
+    }
+
+    public function setIsBlocked(?bool $isBlocked): static
+    {
+        $this->isBlocked = $isBlocked;
 
         return $this;
     }

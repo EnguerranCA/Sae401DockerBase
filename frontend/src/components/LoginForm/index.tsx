@@ -80,6 +80,8 @@ const LoginForm = () => {
                 />
             </div>
 
+            
+
             {error && <div className="text-red-500 text-xs italic">{error}</div>}
 
             <div className="flex items-center justify-between">

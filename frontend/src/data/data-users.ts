@@ -97,7 +97,43 @@ const Users = {
             throw error;
         }
     },
-
+    // Profile
+    updateImage: async (image: File) => {
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('avatar', image);
+            const response = await postRequests('http://localhost:8080/api/users/avatar',  {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            }, formData);
+            return response;
+        }
+        catch (error) {
+            console.error('Error updating image:', error);
+            throw error;
+        }
+    },
+    updateBanner: async (image: File) => {
+        try {
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('banner', image);
+            const response = await postRequests('http://localhost:8080/api/users/banner',  {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            }, formData);
+            return response;
+        }
+        catch (error) {
+            console.error('Error updating banner:', error);
+            throw error;
+        }
+    }
 
 
 };

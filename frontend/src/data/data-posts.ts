@@ -98,6 +98,7 @@ const Posts = {
             throw error;
         }
     }
+
 };
 
 export default Posts;

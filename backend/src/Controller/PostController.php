@@ -55,27 +55,45 @@ final class PostController extends AbstractController
             $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
             $hasUserLiked = $likes->contains($currentUser);
 
-            $posts[] = [
-                'id' => $post->getId(),
-                'content' => $post->getContent(),
-                'created_at' => $post->getCreatedAt(),
-                'user' => [
-                    'name' => $user ? $user->getName() : null,
-                    'username' => $user ? $user->getUsername() : null,
-                    'avatar' => $user ? $user->getAvatar() : null,
-                ],
-                'likes' => [
-                    'count' => count($likes),
-                    'hasLiked' => $hasUserLiked,
-                    'users' => array_map(function ($likeUser) {
-                        return [
-                            'name' => $likeUser->getName(),
-                            'username' => $likeUser->getUsername(),
-                            'avatar' => $likeUser->getAvatar(),
-                        ];
-                    }, $likes->toArray())
-                ]
-            ];
+            if ($user && $user->isBlocked()) {
+                $posts[] = [
+                    'id' => $post->getId(),
+                    'content' => 'This account has been blocked',
+                    'created_at' => $post->getCreatedAt(),
+                    'user' => [
+                        'name' => null,
+                        'username' => null,
+                        'avatar' => 'default.jpg',
+                    ],
+                    'likes' => [
+                        'count' => 0,
+                        'hasLiked' => false,
+                        'users' => []
+                    ]
+                ];
+            } else {
+                $posts[] = [
+                    'id' => $post->getId(),
+                    'content' => $post->getContent(),
+                    'created_at' => $post->getCreatedAt(),
+                    'user' => [
+                        'name' => $user ? $user->getName() : null,
+                        'username' => $user ? $user->getUsername() : null,
+                        'avatar' => $user ? $user->getAvatar() : null,
+                    ],
+                    'likes' => [
+                        'count' => count($likes),
+                        'hasLiked' => $hasUserLiked,
+                        'users' => array_map(function ($likeUser) {
+                            return [
+                                'name' => $likeUser->getName(),
+                                'username' => $likeUser->getUsername(),
+                                'avatar' => $likeUser->getAvatar(),
+                            ];
+                        }, $likes->toArray())
+                    ]
+                ];
+            }
         }
 
         // Return the paginated posts
