@@ -20,13 +20,32 @@ interface TweetProps {
   hasLiked: boolean;
   id: number;
   images?: string[];
+  onUpdate?: () => void;
 }
 
-const Tweet = ({ user, message, likes, hasLiked, id, images }: TweetProps) => {
+const Tweet = ({ user, message, likes, hasLiked, id, images, onUpdate }: TweetProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentHasLiked, setHasLiked] = useState(hasLiked);
   const [currentLikes, setLikes] = useState(likes);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedMessage, setEditedMessage] = useState(message);
+  const [editedImages, setEditedImages] = useState<string[]>(images || []);
+  const [isBlocked, setIsBlocked] = useState(false);
+
+  useEffect(() => {
+    const checkBlockStatus = async () => {
+      try {
+        const currentUser = await Users.getCurrentUserInfo();
+        if (currentUser && currentUser.blockedUsers) {
+          setIsBlocked(currentUser.blockedUsers.some((blockedUser: any) => blockedUser.username === user.username));
+        }
+      } catch (error) {
+        console.error('Error checking block status:', error);
+      }
+    };
+    checkBlockStatus();
+  }, [user.username]);
 
   useEffect(() => {
     // Simulate a loading delay
@@ -55,55 +74,123 @@ const Tweet = ({ user, message, likes, hasLiked, id, images }: TweetProps) => {
     isUserAuthor = user.username === currentUsername;
   }
 
-  console.log(images)
+  const handleSaveEdit = async () => {
+    await Posts.updatePost(id, editedMessage, editedImages);
+    setIsEditing(false);
+    if (onUpdate) {
+      onUpdate();
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditedMessage(message);
+    setEditedImages(images || []);
+    setIsEditing(false);
+  };
+
+  const handleUserClick = () => {
+    navigate(`/profile/${user.username}`);
+  };
 
   return (
     <div className="p-4  bg-white w-full flex flex-col gap-4 border border-lightborder">
       <div className="flex gap-4">
-        <Avatar
-          src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
-          alt="User Avatar"
-          size={64}
-          className="cursor-pointer"
-        />
+        <div onClick={handleUserClick} className="cursor-pointer w-24 h-24">
+          <Avatar
+            src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
+            alt="User Avatar"
+            size={64}
+          />
+        </div>
         <div className="flex mb-2 flex-col w-full">
           <div className='flex justify-between'>
-            <Username
-              name={user.name}
-              username={user.username}
-            />
+            <div onClick={handleUserClick} className="cursor-pointer">
+              <Username
+                name={user.name}
+                username={user.username}
+              />
+            </div>
             {isUserAuthor && (
-              <button
-                className="text-red-500 font-bold"
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this post?')) {
-                    Posts.deleteOnePost(id);
-                  }
-                }}
-              >
-                Delete
-              </button>)}
+              <div className="flex gap-2">
+                <button
+                  className="text-blue-500 font-bold"
+                  onClick={() => setIsEditing(true)}
+                >
+                  Edit
+                </button>
+                <button
+                  className="text-red-500 font-bold"
+                  onClick={() => {
+                    if (window.confirm('Are you sure you want to delete this post?')) {
+                      Posts.deleteOnePost(id);
+                    }
+                  }}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
-          <p className="text-gray-700 break-words break-all">{message}</p>
+          {isEditing ? (
+            <div className="flex flex-col gap-2">
+              <textarea
+                className="w-full p-2 border rounded"
+                value={editedMessage}
+                onChange={(e) => setEditedMessage(e.target.value)}
+                rows={3}
+              />
+              <div className="flex gap-2">
+                <button
+                  className="px-4 py-2 bg-blue-500 text-white rounded"
+                  onClick={handleSaveEdit}
+                >
+                  Save
+                </button>
+                <button
+                  className="px-4 py-2 bg-gray-500 text-white rounded"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-700 break-words break-all">{message}</p>
+          )}
         </div>
       </div>
-      {images && <ImagesGallery variant='medium' images={images} className="w-full" /> }
+      {isEditing ? (
+        <div className="flex flex-col gap-2">
+          {editedImages.length > 0 && <ImagesGallery variant='medium' images={editedImages} className="w-full" />}
+          <div className="flex gap-2">
+            <button
+              className="px-4 py-2 bg-red-500 text-white rounded"
+              onClick={() => setEditedImages([])}
+            >
+              Remove Images
+            </button>
+          </div>
+        </div>
+      ) : (
+        images && <ImagesGallery variant='medium' images={images} className="w-full" />
+      )}
 
-      <LikeButton
-        number={currentLikes.toString()}
-        hasLiked={currentHasLiked}
-        onClick={(newHasLiked) => {
-          if (newHasLiked) {
-            Posts.likeOnePost(id);
-            setLikes((prevLikes) => prevLikes + 1);
-          } else {
-            Posts.unlikeOnePost(id);
-            setLikes((prevLikes) => prevLikes - 1);
-          }
-          // Update the state to trigger a rerender
-          setHasLiked(newHasLiked);
-        }}
-      />
+      {!isBlocked && (
+        <LikeButton
+          number={currentLikes.toString()}
+          hasLiked={currentHasLiked}
+          onClick={(newHasLiked) => {
+            if (newHasLiked) {
+              Posts.likeOnePost(id);
+              setLikes((prevLikes) => prevLikes + 1);
+            } else {
+              Posts.unlikeOnePost(id);
+              setLikes((prevLikes) => prevLikes - 1);
+            }
+            setHasLiked(newHasLiked);
+          }}
+        />
+      )}
     </div>
   );
 };

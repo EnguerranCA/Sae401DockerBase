@@ -3,8 +3,11 @@ import TweetFeed from '../Feed/TweetFeed';
 import ProfileImageEdit from '../../ui/Avatar/ProfileImageEdit';
 import BannerImageEdit from '../../ui/Avatar/BannerImageEdit';
 import FollowButton from '../../ui/Buttons/FollowButton';
+import BlockButton from '../../ui/Buttons/BlockButton';
 import SubmitButton from '../../ui/Buttons/SubmitButton';
-
+import { useState, useEffect } from 'react';
+import Avatar from '../../ui/Avatar';
+import { useNavigate } from 'react-router-dom';
 
 interface ProfileHeaderProps {
     user: {
@@ -17,12 +20,36 @@ interface ProfileHeaderProps {
         website: string;
         location: string;
         isFollowed: boolean;
+        isBlocked: boolean;
     };
-
-};
+}
 
 const ProfileHeader = ({ user }: ProfileHeaderProps) => {
     const isUserAuthor = localStorage.getItem('username') === user.username;
+    const [isBlocked, setIsBlocked] = useState(user.isBlocked);
+    const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
+    const [showBlockedUsers, setShowBlockedUsers] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchBlockedUsers = async () => {
+            try {
+                const currentUser = await Users.getCurrentUserInfo();
+                if (currentUser && currentUser.blockedUsers) {
+                    setBlockedUsers(currentUser.blockedUsers);
+                }
+            } catch (error) {
+                console.error('Error fetching blocked users:', error);
+            }
+        };
+        if (isUserAuthor) {
+            fetchBlockedUsers();
+        }
+    }, [isUserAuthor, isBlocked]);
+
+    const handleUserClick = (username: string) => {
+        navigate(`/profile/${username}`);
+    };
 
     return (
         <div className="relative flex flex-col items-center w-full border border-lightborder">
@@ -33,10 +60,9 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
                 </div>
             </div>
             <img src={`http://localhost:8080/uploads/avatars/${user.avatar}`} alt="Avatar" className="w-24 h-24 rounded-full -mt-12 mb-4 border-4 border-white z-10" />
-                    {isUserAuthor && <ProfileImageEdit />}
+            {isUserAuthor && <ProfileImageEdit />}
 
-                {/* Info */}
-
+            {/* Info */}
             <div className="text-center mt-4">
                 {isUserAuthor ? (
                     <form
@@ -143,25 +169,67 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
 
             <div className="flex gap-2 mt-4">
                 {!isUserAuthor && (
-                    <FollowButton
-                        className="ml-auto"
-                        hasFollow={user.isFollowed}
-                        onClick={(hasFollow) => {
-                            // Handle follow/unfollow logic here
-                            if (hasFollow) {
-                                Users.followUser(user.username);
-
-                            } else {
-                                Users.unfollowUser(user.username);
-
-                            }
-                        }}
-                        username={user.username}
-                    />)}
-
+                    <>
+                        <FollowButton
+                            className="ml-auto"
+                            hasFollow={user.isFollowed}
+                            onClick={(hasFollow) => {
+                                if (hasFollow) {
+                                    Users.followUser(user.username);
+                                } else {
+                                    Users.unfollowUser(user.username);
+                                }
+                            }}
+                            username={user.username}
+                        />
+                        <BlockButton
+                            hasBlock={isBlocked}
+                            onClick={setIsBlocked}
+                            username={user.username}
+                        />
+                    </>
+                )}
             </div>
 
+            {isUserAuthor && blockedUsers.length > 0 && (
+                <div className="w-full mt-4 p-4 border-t">
+                    <button
+                        className="text-gray-600 hover:text-gray-800"
+                        onClick={() => setShowBlockedUsers(!showBlockedUsers)}
+                    >
+                        {showBlockedUsers ? 'Hide Blocked Users' : `Show Blocked Users (${blockedUsers.length})`}
+                    </button>
+                    {showBlockedUsers && (
+                        <div className="mt-2">
+                            {blockedUsers.map((blockedUser) => (
+                                <div key={blockedUser.id} className="flex items-center justify-between p-2 hover:bg-gray-50">
+                                    <div 
+                                        className="flex items-center gap-2 cursor-pointer"
+                                        onClick={() => handleUserClick(blockedUser.username)}
+                                    >
+                                        <Avatar
+                                            src={`http://localhost:8080/uploads/avatars/${blockedUser.avatar}`}
+                                            alt={blockedUser.name}
+                                            size={32}
+                                        />
+                                        <div>
+                                            <p className="font-semibold">{blockedUser.name}</p>
+                                            <p className="text-gray-500">@{blockedUser.username}</p>
+                                        </div>
+                                    </div>
+                                    <BlockButton
+                                        hasBlock={true}
+                                        onClick={setIsBlocked}
+                                        username={blockedUser.username}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
+
 export default ProfileHeader;

@@ -1,49 +1,85 @@
-import { useState } from "react";
-import { cva } from "class-variance-authority";
+import React, { useState, useEffect } from 'react';
+import Users from '../../data/data-users';
 
 interface FollowButtonProps {
-    className?: string;
-    hasFollow?: boolean;
-    onClick: (hasFollow: boolean) => void; // Pass the new state to the parent
+    hasFollow: boolean;
+    onClick: (hasFollow: boolean) => void;
     username: string;
+    className?: string;
 }
 
-const followButtonStyles = cva(
-    "flex items-center gap-1 hover:cursor-pointer px-4 py-2 rounded-full font-bold",
-    {
-        variants: {
-            isFollowing: {
-                true: "bg-primary text-white hover:bg-primary-hover",
-                false: "bg-gray-200 text-black hover:bg-gray-300",
-            },
-        },
-    }
-);
+const FollowButton = ({ hasFollow, onClick, username, className = '' }: FollowButtonProps) => {
+    const [isBlocked, setIsBlocked] = useState(false);
 
-const FollowButton = ({ className, hasFollow = false, onClick, username }: FollowButtonProps) => {
-    const [isFollowing, setIsFollowing] = useState(hasFollow);
+    useEffect(() => {
+        const checkBlockStatus = async () => {
+            try {
+                const userData = await Users.getUserInfoByUsername(username);
+                const currentUser = await Users.getCurrentUserInfo();
+                const currentUsername = localStorage.getItem('username');
 
-    const handleClick = () => {
-        const newFollowState = isFollowing; // Fix the inversion
-        setIsFollowing(!newFollowState); // Update local state
-        onClick(!newFollowState); // Notify parent
+                // Vérifier si l'utilisateur nous a bloqué
+                const isBlockedByUser = userData?.blockedUsers?.some(
+                    (blockedUser: any) => blockedUser.username === currentUsername
+                ) || false;
+
+                // Vérifier si nous avons bloqué l'utilisateur
+                const hasBlockedUser = currentUser?.blockedUsers?.some(
+                    (blockedUser: any) => blockedUser.username === username
+                ) || false;
+
+                console.log('Block status check:', {
+                    username,
+                    currentUsername,
+                    isBlockedByUser,
+                    hasBlockedUser,
+                    userBlockedUsers: userData?.blockedUsers,
+                    currentUserBlockedUsers: currentUser?.blockedUsers
+                });
+
+                setIsBlocked(isBlockedByUser || hasBlockedUser);
+            } catch (error) {
+                console.error('Error checking block status:', error);
+            }
+        };
+        checkBlockStatus();
+    }, [username]);
+
+    const handleClick = async () => {
+        if (isBlocked) {
+            alert('You cannot follow this user because one of you has blocked the other.');
+            return;
+        }
+
+        try {
+            if (hasFollow) {
+                await Users.unfollowUser(username);
+            } else {
+                await Users.followUser(username);
+            }
+            onClick(!hasFollow);
+        } catch (error) {
+            console.error('Error toggling follow:', error);
+        }
     };
+
+    if (isBlocked) {
+        return (
+            <button
+                className={`px-4 py-2 rounded-full bg-gray-200 text-gray-500 cursor-not-allowed ${className}`}
+                disabled
+            >
+                Blocked
+            </button>
+        );
+    }
 
     return (
         <button
-            className={`${followButtonStyles({ isFollowing })} ${className}`}
+            className={`px-4 py-2 rounded-full ${hasFollow ? 'bg-gray-200 text-gray-700' : 'bg-primary text-white'} ${className}`}
             onClick={handleClick}
         >
-            <svg
-                fill={isFollowing ? "#FFFFFF" : "#000000"}
-                height="16px"
-                width="16px"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-            >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
-            </svg>
-            <span>{isFollowing ? "Unfollow" : "Follow"}</span>
+            {hasFollow ? 'Unfollow' : 'Follow'}
         </button>
     );
 };

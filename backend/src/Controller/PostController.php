@@ -316,4 +316,66 @@ final class PostController extends AbstractController
 
         return $this->json(['message' => 'Post deleted']);
     }
+
+    // Update a post
+    #[Route('/api/posts/{id}', methods: ['PATCH'])]
+    #[IsGranted('ROLE_USER')]
+    public function update(PostRepository $postRepository, EntityManagerInterface $entityManager, int $id, Request $request): Response
+    {
+        $post = $postRepository->findOnePost($id);
+
+        if (!$post) {
+            return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Vérifier que l'utilisateur est l'auteur du post
+        $currentUser = $this->getUser();
+        if ($post->getUser()->getId() !== $currentUser->getId()) {
+            return $this->json(['message' => 'You are not authorized to edit this post'], Response::HTTP_FORBIDDEN);
+        }
+
+        // Récupérer les données de la requête
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['content'])) {
+            $post->setContent($data['content']);
+        }
+
+        // Gérer les médias
+        if (array_key_exists('mediaFiles', $data)) {
+            // Supprimer les anciens médias
+            foreach ($post->getMedias() as $media) {
+                $entityManager->remove($media);
+            }
+            $post->getMedias()->clear();
+
+            // Si mediaFiles est un tableau non vide, ajouter les nouveaux médias
+            if (is_array($data['mediaFiles']) && !empty($data['mediaFiles'])) {
+                foreach ($data['mediaFiles'] as $mediaPath) {
+                    $media = new Media();
+                    $media->setPath($mediaPath);
+                    $media->setType(MediaType::IMAGE);
+                    $media->setPost($post);
+                    $entityManager->persist($media);
+                }
+            }
+        }
+
+        try {
+            $entityManager->flush();
+            return $this->json([
+                'message' => 'Post updated successfully',
+                'post' => [
+                    'id' => $post->getId(),
+                    'content' => $post->getContent(),
+                    'media' => array_map(function($media) {
+                        return $media->getPath();
+                    }, $post->getMedias()->toArray())
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return $this->json(['message' => 'Error updating post: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }

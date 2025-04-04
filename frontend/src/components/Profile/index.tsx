@@ -13,6 +13,7 @@ interface ProfilePageProps {
         website: string;
         location: string;
         isFollowed: boolean;
+        isBlocked: boolean;
     };
 
 };

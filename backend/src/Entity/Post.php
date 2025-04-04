@@ -45,10 +45,20 @@ class Post
     #[ORM\OneToMany(targetEntity: Media::class, mappedBy: 'post')]
     private Collection $medias;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'replies')]
+    private ?self $replyTo = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'replyTo')]
+    private Collection $replies;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
         $this->medias = new ArrayCollection();
+        $this->replies = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -140,6 +150,48 @@ class Post
             // set the owning side to null (unless already changed)
             if ($media->getPost() === $this) {
                 $media->setPost(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getReplyTo(): ?self
+    {
+        return $this->replyTo;
+    }
+
+    public function setReplyTo(?self $replyTo): static
+    {
+        $this->replyTo = $replyTo;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getReplies(): Collection
+    {
+        return $this->replies;
+    }
+
+    public function addReply(self $reply): static
+    {
+        if (!$this->replies->contains($reply)) {
+            $this->replies->add($reply);
+            $reply->setReplyTo($this);
+        }
+
+        return $this;
+    }
+
+    public function removeReply(self $reply): static
+    {
+        if ($this->replies->removeElement($reply)) {
+            // set the owning side to null (unless already changed)
+            if ($reply->getReplyTo() === $this) {
+                $reply->setReplyTo(null);
             }
         }
 

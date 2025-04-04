@@ -78,6 +78,18 @@ final class UserController extends AbstractController
         }
 
         $isFollowed = $currentUser->getFollowedUsers()->contains($user);
+        $isBlocked = $currentUser->getBlockedUsers()->contains($user);
+
+        // Récupérer les utilisateurs bloqués
+        $blockedUsers = [];
+        foreach ($user->getBlockedUsers() as $blockedUser) {
+            $blockedUsers[] = [
+                'id' => $blockedUser->getId(),
+                'username' => $blockedUser->getUsername(),
+                'name' => $blockedUser->getName(),
+                'avatar' => $blockedUser->getAvatar(),
+            ];
+        }
 
         return $this->json([
             'id' => $user->getId(),
@@ -89,8 +101,8 @@ final class UserController extends AbstractController
             'website' => $user->getWebsite(),
             'location' => $user->getLocation(),
             'isFollowed' => $isFollowed,
-
-            // Add other fields you want to expose
+            'isBlocked' => $isBlocked,
+            'blockedUsers' => $blockedUsers,
         ]);
     }
 
@@ -106,11 +118,23 @@ final class UserController extends AbstractController
             return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
 
+        // Récupérer les utilisateurs bloqués
+        $blockedUsers = [];
+        foreach ($user->getBlockedUsers() as $blockedUser) {
+            $blockedUsers[] = [
+                'id' => $blockedUser->getId(),
+                'username' => $blockedUser->getUsername(),
+                'name' => $blockedUser->getName(),
+                'avatar' => $blockedUser->getAvatar(),
+            ];
+        }
+
         return $this->json([
             'id' => $user->getId(),
             'username' => $user->getUsername(),
             'name' => $user->getName(),
             'avatar' => $user->getAvatar(),
+            'blockedUsers' => $blockedUsers,
         ]);
     }
 
@@ -346,17 +370,51 @@ final class UserController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function unfollowUser(UserRepository $userRepository, EntityManagerInterface $entityManager, string $username): JsonResponse
     {
-        $user = $this->getUser();
-        $userToUnfollow = $userRepository->findOneBy(['username' => $username]);
-        
-        if (!$userToUnfollow) {
-            return $this->json(['error' => 'User not found'], 404);
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $currentUser = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
-        
-        $user->removeFollowedUser($userToUnfollow);
+
+        $currentUser->removeFollowedUser($user);
         $entityManager->flush();
 
         return $this->json(['message' => 'User unfollowed successfully']);
+    }
+
+    #[Route('/api/users/{username}/block', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function blockUser(UserRepository $userRepository, EntityManagerInterface $entityManager, string $username): JsonResponse
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $currentUser = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $currentUser->addBlockedUser($user);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'User blocked successfully']);
+    }
+
+    #[Route('/api/users/{username}/unblock', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function unblockUser(UserRepository $userRepository, EntityManagerInterface $entityManager, string $username): JsonResponse
+    {
+        $user = $userRepository->findOneBy(['username' => $username]);
+        $currentUser = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'User not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $currentUser->removeBlockedUser($user);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'User unblocked successfully']);
     }
 
     #[Route('/api/users/avatar', methods: ['POST'])]

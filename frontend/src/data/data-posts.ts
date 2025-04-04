@@ -1,4 +1,4 @@
-import { getRequest, postRequests, deleteRequest } from "../lib/utils";
+import { getRequest, postRequests, deleteRequest, patchRequest } from "../lib/utils";
 
 const Posts = {
     loadAllPosts: async () => {
@@ -108,8 +108,16 @@ const Posts = {
             console.error('Error deleting post:', error);
             throw error;
         }
+    },
+    updatePost: async (postId: number, content: string, mediaFiles?: string[]) => {
+        try {
+            const response = await patchRequest(`http://localhost:8080/api/posts/${postId}`, { content, mediaFiles });
+            return response;
+        } catch (error) {
+            console.error('Error updating post:', error);
+            throw error;
+        }
     }
-
 };
 
 export default Posts;

@@ -149,6 +149,36 @@ const Users = {
             console.error('Error updating user info:', error);
             throw error;
         }
+    },
+    blockUser: async (username: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/users/' + username + '/block', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error('Error blocking user:', error);
+            throw error;
+        }
+    },
+    unblockUser: async (username: string) => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await postRequests('http://localhost:8080/api/users/' + username + '/unblock', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            return response;
+        }
+        catch (error) {
+            console.error('Error unblocking user:', error);
+            throw error;
+        }
     }
 };
 
