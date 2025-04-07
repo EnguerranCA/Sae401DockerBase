@@ -1,18 +1,18 @@
 interface LikeButtonProps {
-    number: string;
+    likeCount: number;
     className?: string;
-    hasLiked?: boolean;
-    onClick: (newHasLiked: boolean) => void; // Pass the new state to the parent
+    isLiked?: boolean;
+    onClick: () => void;
 }
 
-const LikeButton = ({ number, className, hasLiked, onClick }: LikeButtonProps) => {
+const LikeButton = ({ likeCount, className, isLiked, onClick }: LikeButtonProps) => {
     return (
         <button
             className={`flex items-center gap-1 ${className} hover:cursor-pointer`}
-            onClick={() => onClick(!hasLiked)} // Toggle the hasLiked state
+            onClick={onClick}
         >
             <svg
-                fill={hasLiked ? "#FF0000" : "#000000"}
+                fill={isLiked ? "#FF0000" : "#000000"}
                 height="16px"
                 width="16px"
                 version="1.1"
@@ -31,7 +31,7 @@ const LikeButton = ({ number, className, hasLiked, onClick }: LikeButtonProps) =
                 </g>
             </svg>
 
-            <span>{number}</span>
+            <span>{likeCount}</span>
         </button>
     );
 };

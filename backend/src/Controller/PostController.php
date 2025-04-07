@@ -64,11 +64,41 @@ final class PostController extends AbstractController
                 $mediaPaths[] = $media->getPath();
             }
 
+            // Get replies
+            $replies = [];
+            foreach ($post->getReplies() as $reply) {
+                $replyUser = $reply->getUser();
+                $replyLikes = $reply->getLikes();
+                $hasUserLikedReply = $replyLikes->contains($currentUser);
+
+                $replies[] = [
+                    'id' => $reply->getId(),
+                    'content' => $reply->getContent(),
+                    'createdAt' => $reply->getCreatedAt(),
+                    'user' => [
+                        'name' => $replyUser ? $replyUser->getName() : null,
+                        'username' => $replyUser ? $replyUser->getUsername() : null,
+                        'avatar' => $replyUser ? $replyUser->getAvatar() : null,
+                    ],
+                    'likes' => [
+                        'count' => count($replyLikes),
+                        'hasLiked' => $hasUserLikedReply,
+                        'users' => array_map(function ($likeUser) {
+                            return [
+                                'name' => $likeUser->getName(),
+                                'username' => $likeUser->getUsername(),
+                                'avatar' => $likeUser->getAvatar(),
+                            ];
+                        }, $replyLikes->toArray())
+                    ]
+                ];
+            }
+
             if ($user && $user->isBlocked()) {
                 $posts[] = [
                     'id' => $post->getId(),
                     'content' => 'This account has been blocked',
-                    'created_at' => $post->getCreatedAt(),
+                    'createdAt' => $post->getCreatedAt(),
                     'user' => [
                         'name' => null,
                         'username' => null,
@@ -79,13 +109,14 @@ final class PostController extends AbstractController
                         'hasLiked' => false,
                         'users' => []
                     ],
-                    'media' => []
+                    'media' => [],
+                    'replies' => []
                 ];
             } else {
                 $posts[] = [
                     'id' => $post->getId(),
                     'content' => $post->getContent(),
-                    'created_at' => $post->getCreatedAt(),
+                    'createdAt' => $post->getCreatedAt(),
                     'user' => [
                         'name' => $user ? $user->getName() : null,
                         'username' => $user ? $user->getUsername() : null,
@@ -102,7 +133,8 @@ final class PostController extends AbstractController
                             ];
                         }, $likes->toArray())
                     ],
-                    'media' => $mediaPaths
+                    'media' => $mediaPaths,
+                    'replies' => $replies
                 ];
             }
         }
@@ -126,16 +158,55 @@ final class PostController extends AbstractController
             return $this->json(['message' => 'No posts found for this user'], Response::HTTP_NOT_FOUND);
         }
 
+        $currentUser = $this->getUser();
+
         // Format the posts with user details and likes
         $formattedPosts = [];
         foreach ($posts as $post) {
             $user = $post->getUser();
-            $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
+            $likes = $post->getLikes();
+            $hasUserLiked = $likes->contains($currentUser);
+
+            // Get media paths
+            $mediaPaths = [];
+            foreach ($post->getMedias() as $media) {
+                $mediaPaths[] = $media->getPath();
+            }
+
+            // Get replies
+            $replies = [];
+            foreach ($post->getReplies() as $reply) {
+                $replyUser = $reply->getUser();
+                $replyLikes = $reply->getLikes();
+                $hasUserLikedReply = $replyLikes->contains($currentUser);
+
+                $replies[] = [
+                    'id' => $reply->getId(),
+                    'content' => $reply->getContent(),
+                    'createdAt' => $reply->getCreatedAt(),
+                    'user' => [
+                        'name' => $replyUser ? $replyUser->getName() : null,
+                        'username' => $replyUser ? $replyUser->getUsername() : null,
+                        'avatar' => $replyUser ? $replyUser->getAvatar() : null,
+                    ],
+                    'likes' => [
+                        'count' => count($replyLikes),
+                        'hasLiked' => $hasUserLikedReply,
+                        'users' => array_map(function ($likeUser) {
+                            return [
+                                'name' => $likeUser->getName(),
+                                'username' => $likeUser->getUsername(),
+                                'avatar' => $likeUser->getAvatar(),
+                            ];
+                        }, $replyLikes->toArray())
+                    ]
+                ];
+            }
 
             $formattedPosts[] = [
                 'id' => $post->getId(),
                 'content' => $post->getContent(),
-                'created_at' => $post->getCreatedAt(),
+                'createdAt' => $post->getCreatedAt(),
                 'user' => [
                     'name' => $user ? $user->getName() : null,
                     'username' => $user ? $user->getUsername() : null,
@@ -143,6 +214,7 @@ final class PostController extends AbstractController
                 ],
                 'likes' => [
                     'count' => count($likes),
+                    'hasLiked' => $hasUserLiked,
                     'users' => array_map(function ($likeUser) {
                         return [
                             'name' => $likeUser->getName(),
@@ -150,7 +222,9 @@ final class PostController extends AbstractController
                             'avatar' => $likeUser->getAvatar(),
                         ];
                     }, $likes->toArray())
-                ]
+                ],
+                'media' => $mediaPaths,
+                'replies' => $replies
             ];
         }
 
@@ -160,21 +234,59 @@ final class PostController extends AbstractController
 
     // Get one post by id
     #[Route('/api/posts/{id}', methods: ['GET'])]
-    public function show(PostRepository $postRepository, int $id): Response
+    public function getPost(PostRepository $postRepository, int $id): Response
     {
-        $post = $postRepository->findOnePost($id);
+        $post = $postRepository->find($id);
 
         if (!$post) {
             return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
         }
 
+        $currentUser = $this->getUser();
         $user = $post->getUser();
-        $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
+        $likes = $post->getLikes();
+        $hasUserLiked = $likes->contains($currentUser);
+
+        // Get media paths
+        $mediaPaths = [];
+        foreach ($post->getMedias() as $media) {
+            $mediaPaths[] = $media->getPath();
+        }
+
+        // Get replies
+        $replies = [];
+        foreach ($post->getReplies() as $reply) {
+            $replyUser = $reply->getUser();
+            $replyLikes = $reply->getLikes();
+            $hasUserLikedReply = $replyLikes->contains($currentUser);
+
+            $replies[] = [
+                'id' => $reply->getId(),
+                'content' => $reply->getContent(),
+                'createdAt' => $reply->getCreatedAt(),
+                'user' => [
+                    'name' => $replyUser ? $replyUser->getName() : null,
+                    'username' => $replyUser ? $replyUser->getUsername() : null,
+                    'avatar' => $replyUser ? $replyUser->getAvatar() : null,
+                ],
+                'likes' => [
+                    'count' => count($replyLikes),
+                    'hasLiked' => $hasUserLikedReply,
+                    'users' => array_map(function ($likeUser) {
+                        return [
+                            'name' => $likeUser->getName(),
+                            'username' => $likeUser->getUsername(),
+                            'avatar' => $likeUser->getAvatar(),
+                        ];
+                    }, $replyLikes->toArray())
+                ]
+            ];
+        }
 
         return $this->json([
             'id' => $post->getId(),
             'content' => $post->getContent(),
-            'created_at' => $post->getCreatedAt(),
+            'createdAt' => $post->getCreatedAt(),
             'user' => [
                 'name' => $user ? $user->getName() : null,
                 'username' => $user ? $user->getUsername() : null,
@@ -182,6 +294,7 @@ final class PostController extends AbstractController
             ],
             'likes' => [
                 'count' => count($likes),
+                'hasLiked' => $hasUserLiked,
                 'users' => array_map(function ($likeUser) {
                     return [
                         'name' => $likeUser->getName(),
@@ -189,7 +302,9 @@ final class PostController extends AbstractController
                         'avatar' => $likeUser->getAvatar(),
                     ];
                 }, $likes->toArray())
-            ]
+            ],
+            'media' => $mediaPaths,
+            'replies' => $replies
         ]);
     }
 
@@ -377,5 +492,74 @@ final class PostController extends AbstractController
             return $this->json(['message' => 'Error updating post: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    #[Route('/api/posts/{id}/replies', methods: ['GET'])]
+    #[IsGranted('ROLE_USER')]
+    public function getReplies(PostRepository $postRepository, int $id): Response
+    {
+        $post = $postRepository->find($id);
+        if (!$post) {
+            return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $replies = $post->getReplies();
+        $data = [];
+        foreach ($replies as $reply) {
+            $data[] = [
+                'id' => $reply->getId(),
+                'content' => $reply->getContent(),
+                'createdAt' => $reply->getCreatedAt(),
+                'user' => [
+                    'id' => $reply->getUser()->getId(),
+                    'username' => $reply->getUser()->getUsername(),
+                    'name' => $reply->getUser()->getName(),
+                    'avatar' => $reply->getUser()->getAvatar(),
+                ],
+                'likes' => $reply->getLikes()->count(),
+                'hasLiked' => $reply->getLikes()->contains($this->getUser()),
+                'replyCount' => $reply->getReplies()->count(),
+            ];
+        }
+
+        return $this->json($data);
+    }
+
+    #[Route('/api/posts/{id}/reply', methods: ['POST'])]
+    #[IsGranted('ROLE_USER')]
+    public function replyToPost(Request $request, PostRepository $postRepository, EntityManagerInterface $entityManager, int $id): Response
+    {
+        $post = $postRepository->find($id);
+        if (!$post) {
+            return $this->json(['message' => 'Post not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $content = $request->request->get('content');
+        if (!$content) {
+            return $this->json(['message' => 'Content is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $reply = new Post();
+        $reply->setContent($content);
+        $reply->setUser($this->getUser());
+        $reply->setReplyTo($post);
+        $reply->setCreatedAt(new \DateTime());
+
+        $entityManager->persist($reply);
+        $entityManager->flush();
+
+        return $this->json([
+            'id' => $reply->getId(),
+            'content' => $reply->getContent(),
+            'createdAt' => $reply->getCreatedAt(),
+            'user' => [
+                'id' => $reply->getUser()->getId(),
+                'username' => $reply->getUser()->getUsername(),
+                'name' => $reply->getUser()->getName(),
+                'avatar' => $reply->getUser()->getAvatar(),
+            ],
+            'likes' => 0,
+            'hasLiked' => false,
+            'replyCount' => 0,
+        ]);
+    }
 }

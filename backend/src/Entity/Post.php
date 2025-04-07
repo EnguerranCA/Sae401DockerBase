@@ -54,6 +54,9 @@ class Post
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'replyTo')]
     private Collection $replies;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isCensored = false;
+
     public function __construct()
     {
         $this->likes = new ArrayCollection();
@@ -195,6 +198,17 @@ class Post
             }
         }
 
+        return $this;
+    }
+
+    public function isCensored(): bool
+    {
+        return $this->isCensored;
+    }
+
+    public function setIsCensored(bool $isCensored): self
+    {
+        $this->isCensored = $isCensored;
         return $this;
     }
 }

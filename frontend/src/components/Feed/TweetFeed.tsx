@@ -12,6 +12,45 @@ interface TweetFeedProps {
   filter: string; // Added the filter property
 }
 
+interface Post {
+  id: number;
+  content: string;
+  createdAt: string;
+  created_at?: string;
+  user: {
+    id: number;
+    username: string;
+    name: string;
+    avatar: string;
+  };
+  likes: {
+    count: number;
+    hasLiked: boolean;
+    users: Array<{
+      name: string;
+      username: string;
+      avatar: string;
+    }>;
+  };
+  media: string[];
+  replyCount: number;
+  replies: Array<{
+    id: number;
+    content: string;
+    createdAt: string;
+    user: {
+      id: number;
+      username: string;
+      name: string;
+      avatar: string;
+    };
+    likes: {
+      count: number;
+      hasLiked: boolean;
+    };
+  }>;
+}
+
 const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
   // Reload state
   const [key, setKey] = useState(0);
@@ -28,14 +67,13 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
     try {
       let response;
       if (filter === 'follow') {
-        response = await Posts.loadAllFollowedPosts(1); // Load tweets from followed users
-      }  else if (filter.includes('user')) {
-        const username = filter.split('/')[1]; // Extract user ID from filter
+        response = await Posts.loadAllFollowedPosts(1);
+      } else if (filter.includes('user')) {
+        const username = filter.split('/')[1];
         console.log('Fetching tweets for user:', username);
-        response = await Posts.loadUserPosts(username); // Load tweets from a specific user
-      }
-      else {
-        response = await Posts.loadAllPosts(); // Load all tweets
+        response = await Posts.loadUserPosts(username);
+      } else {
+        response = await Posts.loadAllPosts();
       }
 
       if (response && response.posts) {
@@ -43,7 +81,20 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
           setError('No posts found');
           return;
         }
-        setTweets(response.posts);
+        const formattedPosts = response.posts.map((post: Post) => ({
+          ...post,
+          createdAt: post.createdAt || post.created_at,
+          likes: post.likes.count,
+          hasLiked: post.likes.hasLiked,
+          images: post.media,
+          replyCount: post.replyCount || 0,
+          replies: post.replies?.map(reply => ({
+            ...reply,
+            likes: reply.likes.count,
+            hasLiked: reply.likes.hasLiked
+          })) || []
+        }));
+        setTweets(formattedPosts);
       } else {
         setError('No posts found');
       }
@@ -57,13 +108,26 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
     try {
       let response;
       if (filter === 'follow') {
-        response = await Posts.loadFollowedPostsByPage(page + 1); // Load more tweets from followed users
+        response = await Posts.loadFollowedPostsByPage(page + 1);
       } else {
-        response = await Posts.loadPostsByPage(page + 1); // Load more tweets
+        response = await Posts.loadPostsByPage(page + 1);
       }
 
       if (response && response.posts) {
-        setTweets((prevTweets) => [...prevTweets, ...response.posts]);
+        const formattedPosts = response.posts.map((post: Post) => ({
+          ...post,
+          createdAt: post.createdAt || post.created_at,
+          likes: post.likes.count,
+          hasLiked: post.likes.hasLiked,
+          images: post.media,
+          replyCount: post.replyCount || 0,
+          replies: post.replies?.map(reply => ({
+            ...reply,
+            likes: reply.likes.count,
+            hasLiked: reply.likes.hasLiked
+          })) || []
+        }));
+        setTweets((prevTweets) => [...prevTweets, ...formattedPosts]);
         page++;
       } else {
         setError('No more posts found');
@@ -86,6 +150,11 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [key, filter]); // Add `filter` as a dependency to re-fetch tweets when it changes
 
+  const isUserAuthor = (tweet: Post) => {
+    const currentUsername = localStorage.getItem('username');
+    return currentUsername === tweet.user.username;
+  };
+
   return (
     <div id="tweetFeed" className="flex flex-col items-center w-full relative">
       {error && <div className="text-red-500 font-bold">{error}</div>}
@@ -96,15 +165,19 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
         className="bg-blue-500 text-white px-4 py-2 rounded-full absolute w-min"
       />
       {tweets.map((tweet) => (
-        <Tweet 
-          key={tweet.id} 
-          user={tweet.user} 
-          message={tweet.content} 
-          likes={tweet.likes.count} 
-          hasLiked={tweet.likes.hasLiked} 
-          id={tweet.id} 
-          images={tweet.media}
-          onUpdate={reloadParent}
+        <Tweet
+          key={tweet.id}
+          id={tweet.id}
+          content={tweet.content}
+          createdAt={tweet.createdAt}
+          user={tweet.user}
+          likes={tweet.likes}
+          hasLiked={tweet.hasLiked}
+          replyCount={tweet.replyCount}
+          images={tweet.images}
+          replies={tweet.replies}
+          onLike={reloadParent}
+          onDelete={reloadParent}
         />
       ))}
     </div>

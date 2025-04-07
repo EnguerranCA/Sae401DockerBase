@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
+    "date-fns": "^4.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-loading-skeleton": "^3.4.0",

@@ -1,37 +1,59 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Avatar from '../../ui/Avatar';
 import Username from '../../ui/Username';
 import LikeButton from '../../ui/Buttons/LikeButton';
-
-import Users from '../../data/data-users';
+import ReplyButton from '../../ui/Buttons/ReplyButton';
+import ReplyForm from './ReplyForm';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import Posts from '../../data/data-posts';
+import Users from '../../data/data-users';
 import { useNavigate } from 'react-router-dom';
-
 import ImagesGallery from '../../ui/Media/ImagesGallery';
 
 interface TweetProps {
-  message: string;
+  id: number;
+  content: string;
+  createdAt: string;
   user: {
-    avatar: string;
-    name: string;
+    id: number;
     username: string;
+    name: string;
+    avatar: string;
   };
   likes: number;
   hasLiked: boolean;
-  id: number;
+  replyCount: number;
+  isReply?: boolean;
   images?: string[];
-  onUpdate?: () => void;
+  onLike: (postId: number) => void;
+  onDelete?: (postId: number) => void;
+  replies?: Array<{
+    id: number;
+    content: string;
+    createdAt: string;
+    user: {
+      id: number;
+      username: string;
+      name: string;
+      avatar: string;
+    };
+    likes: number;
+    hasLiked: boolean;
+  }>;
 }
 
-const Tweet = ({ user, message, likes, hasLiked, id, images, onUpdate }: TweetProps) => {
+const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isReply = false, images = [], onLike, onDelete, replies = [] }: TweetProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentHasLiked, setHasLiked] = useState(hasLiked);
   const [currentLikes, setLikes] = useState(likes);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedMessage, setEditedMessage] = useState(message);
-  const [editedImages, setEditedImages] = useState<string[]>(images || []);
+  const [editedMessage, setEditedMessage] = useState(content);
+  const [editedImages, setEditedImages] = useState<string[]>([]);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [showReplyForm, setShowReplyForm] = useState(false);
 
   useEffect(() => {
     const checkBlockStatus = async () => {
@@ -77,14 +99,14 @@ const Tweet = ({ user, message, likes, hasLiked, id, images, onUpdate }: TweetPr
   const handleSaveEdit = async () => {
     await Posts.updatePost(id, editedMessage, editedImages);
     setIsEditing(false);
-    if (onUpdate) {
-      onUpdate();
+    if (onLike) {
+      onLike(id);
     }
   };
 
   const handleCancelEdit = () => {
-    setEditedMessage(message);
-    setEditedImages(images || []);
+    setEditedMessage(content);
+    setEditedImages([]);
     setIsEditing(false);
   };
 
@@ -92,105 +114,149 @@ const Tweet = ({ user, message, likes, hasLiked, id, images, onUpdate }: TweetPr
     navigate(`/profile/${user.username}`);
   };
 
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        return 'Invalid date';
+      }
+      return formatDistanceToNow(date, { addSuffix: true, locale: fr });
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid date';
+    }
+  };
+
+  const handleReply = () => {
+    setShowReplyForm(!showReplyForm);
+  };
+
   return (
-    <div className="p-4  bg-white w-full flex flex-col gap-4 border border-lightborder">
-      <div className="flex gap-4">
-        <div onClick={handleUserClick} className="cursor-pointer w-24 h-24">
-          <Avatar
-            src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
-            alt="User Avatar"
-            size={64}
-          />
+    <div className={`w-full border-b border-gray-200 p-4 ${isReply ? 'bg-gray-50' : ''}`}>
+      <div className="flex gap-2">
+        <div className="flex-shrink-0">
+          <Link to={`/profile/${user.username}`}>
+            <Avatar
+              src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
+              alt={user.name}
+              size={isReply ? 32 : 48}
+            />
+          </Link>
         </div>
-        <div className="flex mb-2 flex-col w-full">
-          <div className='flex justify-between'>
-            <div onClick={handleUserClick} className="cursor-pointer">
-              <Username
-                name={user.name}
-                username={user.username}
-              />
-            </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1">
+            <Link to={`/profile/${user.username}`} className="font-bold hover:underline">
+              {user.name}
+            </Link>
+            <Link to={`/profile/${user.username}`} className="text-gray-500">
+              @{user.username}
+            </Link>
+            <span className="text-gray-500">·</span>
+            <span className="text-gray-500">
+              {formatDate(createdAt)}
+            </span>
+          </div>
+          <p className="mt-1">{content}</p>
+          {images && images.length > 0 && (
+            <ImagesGallery variant='medium' images={images} className="w-full mt-2" />
+          )}
+          <div className="flex items-center gap-4 mt-2">
+            <ReplyButton
+              onClick={handleReply}
+              replyCount={replyCount}
+              className="text-gray-500 hover:text-blue-500"
+            />
+            <LikeButton
+              onClick={() => {
+                if (currentHasLiked) {
+                  Posts.unlikeOnePost(id);
+                  setLikes((prevLikes) => prevLikes - 1);
+                } else {
+                  Posts.likeOnePost(id);
+                  setLikes((prevLikes) => prevLikes + 1);
+                }
+                setHasLiked(!currentHasLiked);
+              }}
+              likeCount={currentLikes}
+              isLiked={currentHasLiked}
+              className="text-gray-500 hover:text-red-500"
+            />
             {isUserAuthor && (
-              <div className="flex gap-2">
+              <>
                 <button
-                  className="text-blue-500 font-bold"
                   onClick={() => setIsEditing(true)}
+                  className="text-gray-500 hover:text-blue-500"
                 >
                   Edit
                 </button>
                 <button
-                  className="text-red-500 font-bold"
                   onClick={() => {
                     if (window.confirm('Are you sure you want to delete this post?')) {
                       Posts.deleteOnePost(id);
+                      if (onDelete) {
+                        onDelete(id);
+                      }
                     }
                   }}
+                  className="text-gray-500 hover:text-red-500"
                 >
                   Delete
                 </button>
-              </div>
+              </>
             )}
           </div>
-          {isEditing ? (
-            <div className="flex flex-col gap-2">
+          {isEditing && (
+            <div className="mt-4">
               <textarea
-                className="w-full p-2 border rounded"
                 value={editedMessage}
                 onChange={(e) => setEditedMessage(e.target.value)}
+                className="w-full p-2 border rounded"
                 rows={3}
               />
-              <div className="flex gap-2">
+              <div className="flex justify-end gap-2 mt-2">
                 <button
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                  onClick={handleSaveEdit}
-                >
-                  Save
-                </button>
-                <button
-                  className="px-4 py-2 bg-gray-500 text-white rounded"
                   onClick={handleCancelEdit}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
                 >
                   Cancel
                 </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Save
+                </button>
               </div>
             </div>
-          ) : (
-            <p className="text-gray-700 break-words break-all">{message}</p>
+          )}
+          {showReplyForm && (
+            <ReplyForm
+              tweetId={id}
+              onReplyPosted={() => {
+                setShowReplyForm(false);
+                if (onLike) {
+                  onLike(id);
+                }
+              }}
+              className="mt-4"
+            />
+          )}
+          {replies.length > 0 && (
+            <div className="w-full mt-4 space-y-2 pl-8 border-l-2 border-gray-200">
+              {replies.map((reply) => (
+                <Tweet
+                  key={reply.id}
+                  {...reply}
+                  isReply={true}
+                  onLike={onLike}
+                  replyCount={0}
+                />
+              ))}
+            </div>
           )}
         </div>
       </div>
-      {isEditing ? (
-        <div className="flex flex-col gap-2">
-          {editedImages.length > 0 && <ImagesGallery variant='medium' images={editedImages} className="w-full" />}
-          <div className="flex gap-2">
-            <button
-              className="px-4 py-2 bg-red-500 text-white rounded"
-              onClick={() => setEditedImages([])}
-            >
-              Remove Images
-            </button>
-          </div>
-        </div>
-      ) : (
-        images && <ImagesGallery variant='medium' images={images} className="w-full" />
-      )}
-
-      {!isBlocked && (
-        <LikeButton
-          number={currentLikes.toString()}
-          hasLiked={currentHasLiked}
-          onClick={(newHasLiked) => {
-            if (newHasLiked) {
-              Posts.likeOnePost(id);
-              setLikes((prevLikes) => prevLikes + 1);
-            } else {
-              Posts.unlikeOnePost(id);
-              setLikes((prevLikes) => prevLikes - 1);
-            }
-            setHasLiked(newHasLiked);
-          }}
-        />
-      )}
     </div>
   );
 };

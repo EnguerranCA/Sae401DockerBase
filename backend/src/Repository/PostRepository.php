@@ -50,9 +50,13 @@ class PostRepository extends ServiceEntityRepository
     public function paginateAllOrderedByLatest($offset, $count): Paginator
     {
         $query = $this->createQueryBuilder('p')
-            ->addSelect('u')
+            ->addSelect('u', 'r', 'ru')
             ->leftJoin('p.user', 'u')
+            ->leftJoin('p.replies', 'r')
+            ->leftJoin('r.user', 'ru')
+            ->where('p.replyTo IS NULL')
             ->orderBy('p.created_at', 'DESC')
+            ->addOrderBy('r.created_at', 'ASC')
             ->setFirstResult($offset)
             ->setMaxResults($count)
             ->getQuery();
@@ -63,11 +67,15 @@ class PostRepository extends ServiceEntityRepository
     public function paginateFollowedUsersPosts($user, $offset, $count): Paginator
     {
         $query = $this->createQueryBuilder('p')
-            ->addSelect('u')
+            ->addSelect('u', 'r', 'ru')
             ->leftJoin('p.user', 'u')
+            ->leftJoin('p.replies', 'r')
+            ->leftJoin('r.user', 'ru')
             ->where('u.id IN (:followedUsers)')
+            ->andWhere('p.replyTo IS NULL')
             ->setParameter('followedUsers', $user->getFollowedUsers())
             ->orderBy('p.created_at', 'DESC')
+            ->addOrderBy('r.created_at', 'ASC')
             ->setFirstResult($offset)
             ->setMaxResults($count)
             ->getQuery();
@@ -78,11 +86,15 @@ class PostRepository extends ServiceEntityRepository
     public function findPostsByUsername($username): ?array
     {
         return $this->createQueryBuilder('p')
-            ->addSelect('u')
+            ->addSelect('u', 'r', 'ru')
             ->leftJoin('p.user', 'u')
+            ->leftJoin('p.replies', 'r')
+            ->leftJoin('r.user', 'ru')
             ->andWhere('u.username = :username')
+            ->andWhere('p.replyTo IS NULL')
             ->setParameter('username', $username)
             ->orderBy('p.created_at', 'DESC')
+            ->addOrderBy('r.created_at', 'ASC')
             ->getQuery()
             ->getResult()
         ;

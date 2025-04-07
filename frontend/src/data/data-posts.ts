@@ -48,7 +48,7 @@ const Posts = {
     },
     createOnePost: async (content: string, mediaFiles?: File[]) => {
         try {
-            const token = localStorage.getItem('apiToken');
+            const apiToken = localStorage.getItem('apiToken');
             let formData = new FormData();
             formData.append('content', content);
             if (mediaFiles && mediaFiles.length > 0) {
@@ -62,7 +62,7 @@ const Posts = {
 
             const response = await postRequests('http://localhost:8080/api/posts', {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${apiToken}`,
                 }
             }, formData);
             return response;
@@ -73,10 +73,10 @@ const Posts = {
     },
     likeOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('apiToken');
+            const apiToken = localStorage.getItem('apiToken');
             const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/like', {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${apiToken}`
                 }
             });
             return response;
@@ -87,10 +87,10 @@ const Posts = {
     },
     unlikeOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('apiToken');
+            const apiToken = localStorage.getItem('apiToken');
             const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/unlike', {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${apiToken}`
                 }
             });
             return response;
@@ -101,7 +101,7 @@ const Posts = {
     },
     deleteOnePost: async (postId: number) => {
         try {
-            const token = localStorage.getItem('apiToken');
+            const apiToken = localStorage.getItem('apiToken');
             const response = await deleteRequest('http://localhost:8080/api/posts/' + postId);
             return response;
         } catch (error) {
@@ -117,7 +117,29 @@ const Posts = {
             console.error('Error updating post:', error);
             throw error;
         }
-    }
+    },
+    async getReplies(postId: number): Promise<any[]> {
+        try {
+            const response = await getRequest(`http://localhost:8080/api/posts/${postId}/replies`);
+            return response;
+        } catch (error) {
+            console.error('Error fetching replies:', error);
+            throw error;
+        }
+    },
+    async replyToTweet(postId: number, content: string): Promise<any> {
+        try {
+            const apiToken = localStorage.getItem('apiToken');
+            const formData = new FormData();
+            formData.append('content', content);
+            
+            const response = await postRequests(`http://localhost:8080/api/posts/${postId}/reply`, undefined, formData);
+            return response;
+        } catch (error) {
+            console.error('Error posting reply:', error);
+            throw error;
+        }
+    },
 };
 
 export default Posts;
