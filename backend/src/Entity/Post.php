@@ -62,6 +62,7 @@ class Post
         $this->likes = new ArrayCollection();
         $this->medias = new ArrayCollection();
         $this->replies = new ArrayCollection();
+        $this->created_at = new \DateTime();
     }
 
     public function getId(): ?int

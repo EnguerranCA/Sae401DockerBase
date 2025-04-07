@@ -10,7 +10,7 @@ import { fr } from 'date-fns/locale';
 import Posts from '../../data/data-posts';
 import Users from '../../data/data-users';
 import { useNavigate } from 'react-router-dom';
-import ImagesGallery from '../../ui/Media/ImagesGallery';
+import MediaGallery from '../../ui/Media/MediaGallery';
 
 interface TweetProps {
   id: number;
@@ -58,9 +58,9 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
   useEffect(() => {
     const checkBlockStatus = async () => {
       try {
-        const currentUser = await Users.getCurrentUserInfo();
-        if (currentUser && currentUser.blockedUsers) {
-          setIsBlocked(currentUser.blockedUsers.some((blockedUser: any) => blockedUser.username === user.username));
+        const currentUsername = localStorage.getItem('username');
+        if (currentUsername) {
+          setIsBlocked(false); // Par défaut, on considère que l'utilisateur n'est pas bloqué
         }
       } catch (error) {
         console.error('Error checking block status:', error);
@@ -159,7 +159,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
           </div>
           <p className="mt-1">{content}</p>
           {images && images.length > 0 && (
-            <ImagesGallery variant='medium' images={images} className="w-full mt-2" />
+            <MediaGallery variant='medium' images={images} className="w-full mt-2" />
           )}
           <div className="flex items-center gap-4 mt-2">
             <ReplyButton

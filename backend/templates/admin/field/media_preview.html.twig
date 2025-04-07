@@ -1,0 +1,20 @@
+{% if field.value is not empty %}
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {% for media in field.value %}
+            <div class="relative">
+                {% if media.type.value == 'image' %}
+                    <img src="http://localhost:8080/uploads/media/{{ media.path }}" 
+                         alt="Post media" 
+                         class="w-full h-32 object-cover rounded">
+                {% elseif media.type.value == 'video' %}
+                    <video class="w-full h-32 object-cover rounded" controls>
+                        <source src="http://localhost:8080/uploads/media/{{ media.path }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <span class="text-gray-500">No media</span>
+{% endif %} 

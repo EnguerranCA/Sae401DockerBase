@@ -55,7 +55,7 @@ final class PostController extends AbstractController
         $posts = [];
         foreach ($paginator as $post) {
             $user = $post->getUser();
-            $likes = $post->getLikes(); // Assuming getLikes() returns a collection of users who liked the post
+            $likes = $post->getLikes();
             $hasUserLiked = $likes->contains($currentUser);
 
             // Get media paths
@@ -103,6 +103,24 @@ final class PostController extends AbstractController
                         'name' => null,
                         'username' => null,
                         'avatar' => 'default.jpg',
+                    ],
+                    'likes' => [
+                        'count' => 0,
+                        'hasLiked' => false,
+                        'users' => []
+                    ],
+                    'media' => [],
+                    'replies' => []
+                ];
+            } else if ($post->isCensored()) {
+                $posts[] = [
+                    'id' => $post->getId(),
+                    'content' => 'Ce message enfreint les conditions d\'utilisation de la plateforme',
+                    'createdAt' => $post->getCreatedAt(),
+                    'user' => [
+                        'name' => $user ? $user->getName() : null,
+                        'username' => $user ? $user->getUsername() : null,
+                        'avatar' => $user ? $user->getAvatar() : null,
                     ],
                     'likes' => [
                         'count' => 0,
@@ -203,29 +221,49 @@ final class PostController extends AbstractController
                 ];
             }
 
-            $formattedPosts[] = [
-                'id' => $post->getId(),
-                'content' => $post->getContent(),
-                'createdAt' => $post->getCreatedAt(),
-                'user' => [
-                    'name' => $user ? $user->getName() : null,
-                    'username' => $user ? $user->getUsername() : null,
-                    'avatar' => $user ? $user->getAvatar() : null,
-                ],
-                'likes' => [
-                    'count' => count($likes),
-                    'hasLiked' => $hasUserLiked,
-                    'users' => array_map(function ($likeUser) {
-                        return [
-                            'name' => $likeUser->getName(),
-                            'username' => $likeUser->getUsername(),
-                            'avatar' => $likeUser->getAvatar(),
-                        ];
-                    }, $likes->toArray())
-                ],
-                'media' => $mediaPaths,
-                'replies' => $replies
-            ];
+            if ($post->isCensored()) {
+                $formattedPosts[] = [
+                    'id' => $post->getId(),
+                    'content' => 'Ce message enfreint les conditions d\'utilisation de la plateforme',
+                    'createdAt' => $post->getCreatedAt(),
+                    'user' => [
+                        'name' => $user ? $user->getName() : null,
+                        'username' => $user ? $user->getUsername() : null,
+                        'avatar' => $user ? $user->getAvatar() : null,
+                    ],
+                    'likes' => [
+                        'count' => 0,
+                        'hasLiked' => false,
+                        'users' => []
+                    ],
+                    'media' => [],
+                    'replies' => []
+                ];
+            } else {
+                $formattedPosts[] = [
+                    'id' => $post->getId(),
+                    'content' => $post->getContent(),
+                    'createdAt' => $post->getCreatedAt(),
+                    'user' => [
+                        'name' => $user ? $user->getName() : null,
+                        'username' => $user ? $user->getUsername() : null,
+                        'avatar' => $user ? $user->getAvatar() : null,
+                    ],
+                    'likes' => [
+                        'count' => count($likes),
+                        'hasLiked' => $hasUserLiked,
+                        'users' => array_map(function ($likeUser) {
+                            return [
+                                'name' => $likeUser->getName(),
+                                'username' => $likeUser->getUsername(),
+                                'avatar' => $likeUser->getAvatar(),
+                            ];
+                        }, $likes->toArray())
+                    ],
+                    'media' => $mediaPaths,
+                    'replies' => $replies
+                ];
+            }
         }
 
         return $this->json(['posts' => $formattedPosts]);
@@ -283,6 +321,26 @@ final class PostController extends AbstractController
             ];
         }
 
+        if ($post->isCensored()) {
+            return $this->json([
+                'id' => $post->getId(),
+                'content' => 'Ce message enfreint les conditions d\'utilisation de la plateforme',
+                'createdAt' => $post->getCreatedAt(),
+                'user' => [
+                    'name' => $user ? $user->getName() : null,
+                    'username' => $user ? $user->getUsername() : null,
+                    'avatar' => $user ? $user->getAvatar() : null,
+                ],
+                'likes' => [
+                    'count' => 0,
+                    'hasLiked' => false,
+                    'users' => []
+                ],
+                'media' => [],
+                'replies' => []
+            ]);
+        }
+
         return $this->json([
             'id' => $post->getId(),
             'content' => $post->getContent(),
@@ -330,19 +388,32 @@ final class PostController extends AbstractController
         $post->setUser($currentUser);
         $post->setCreatedAt(new \DateTime());
 
-        // Handle media files if provided
-        $mediaFiles = $request->files->get('media');
-        if ($mediaFiles) {
+        // Handle media uploads
+        if ($request->files->has('media')) {
+            $mediaFiles = $request->files->all()['media'];
+            if (!is_array($mediaFiles)) {
+                $mediaFiles = [$mediaFiles];
+            }
+
             foreach ($mediaFiles as $mediaFile) {
                 if ($mediaFile instanceof UploadedFile) {
+                    $originalFilename = pathinfo($mediaFile->getClientOriginalName(), PATHINFO_FILENAME);
+                    $newFilename = $originalFilename.'-'.uniqid().'.'.$mediaFile->guessExtension();
+                    
+                    // Determine media type based on file extension
+                    $extension = strtolower($mediaFile->getClientOriginalExtension());
+                    $mediaType = in_array($extension, ['mp4', 'webm', 'ogg', 'mov', 'avi', 'mkv']) 
+                        ? MediaType::VIDEO 
+                        : MediaType::IMAGE;
+
+                    $mediaFile->move(
+                        $this->getParameter('kernel.project_dir') . '/public/uploads/media',
+                        $newFilename
+                    );
+
                     $media = new Media();
-                    $newFilename = uniqid() . '.' . $mediaFile->guessExtension();
-                    $uploadsDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/media';
-                    $mediaFile->move($uploadsDirectory, $newFilename);
                     $media->setPath($newFilename);
-
-                    $media->setType(MediaType::IMAGE); // Assuming all uploaded files are images
-
+                    $media->setType($mediaType);
                     $media->setPost($post);
                     $entityManager->persist($media);
                 }

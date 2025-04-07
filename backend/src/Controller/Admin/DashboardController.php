@@ -9,9 +9,12 @@ use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Controller\DashboardControllerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use EasyCorp\Bundle\EasyAdminBundle\Contracts\Menu\MenuItemInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Symfony\Component\Routing\Annotation\Route;
 
 use App\Entity\User;
 use App\Entity\Post;
+use App\Entity\Media;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin', routes: [
@@ -23,28 +26,25 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 ])]
 class DashboardController extends AbstractDashboardController
 {
+    #[Route('/admin', name: 'admin')]
     public function index(): Response
     {
-        // Render a custom template to display a proper dashboard with widgets, etc.
-        return $this->render('admin/my_dashboard.html.twig');
+        $adminUrlGenerator = $this->container->get(AdminUrlGenerator::class);
+        return $this->redirect($adminUrlGenerator->setController(PostCrudController::class)->generateUrl());
     }
 
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Backend');
+            ->setTitle('Admin Dashboard');
     }
 
     public function configureMenuItems(): iterable
     {
-        return [
-            MenuItem::linkToDashboard('Dashboard', 'fa fa-home'),
-
-            MenuItem::section('Users'),
-            MenuItem::linkToCrud('Users', 'fa fa-user', User::class),
-
-            // MenuItem::section('Blog'),
-            // MenuItem::linkToCrud('Posts', 'fa fa-tags', Post::class),
-        ];
+        yield MenuItem::linkToDashboard('Dashboard', 'fa fa-home');
+        yield MenuItem::linkToCrud('Users', 'fa fa-users', User::class);
+        yield MenuItem::linkToCrud('Posts', 'fa fa-comment', Post::class);
+        yield MenuItem::linkToCrud('Media', 'fa fa-image', Media::class);
+        // ... other menu items ...
     }
 }
