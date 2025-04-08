@@ -21,6 +21,7 @@ interface TweetProps {
     username: string;
     name: string;
     avatar: string;
+    isReadOnly?: boolean;
   };
   likes: number;
   hasLiked: boolean;
@@ -51,7 +52,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
   const [currentLikes, setLikes] = useState(likes);
   const [isEditing, setIsEditing] = useState(false);
   const [editedMessage, setEditedMessage] = useState(content);
-  const [editedImages, setEditedImages] = useState<string[]>([]);
+  const [editedImages, setEditedImages] = useState<string[]>(images);
   const [isBlocked, setIsBlocked] = useState(false);
   const [showReplyForm, setShowReplyForm] = useState(false);
 
@@ -106,8 +107,12 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
 
   const handleCancelEdit = () => {
     setEditedMessage(content);
-    setEditedImages([]);
+    setEditedImages(images);
     setIsEditing(false);
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setEditedImages(editedImages.filter((_, i) => i !== index));
   };
 
   const handleUserClick = () => {
@@ -157,16 +162,64 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
               {formatDate(createdAt)}
             </span>
           </div>
-          <p className="mt-1">{content}</p>
-          {images && images.length > 0 && (
-            <MediaGallery variant='medium' images={images} className="w-full mt-2" />
+          {!isEditing ? (
+            <>
+              <p className="mt-1">{content}</p>
+              {images && images.length > 0 && (
+                <MediaGallery variant='medium' images={images} className="w-full mt-2" />
+              )}
+            </>
+          ) : (
+            <>
+              <textarea
+                value={editedMessage}
+                onChange={(e) => setEditedMessage(e.target.value)}
+                className="w-full p-2 border rounded mt-2"
+                rows={3}
+              />
+              {editedImages.length > 0 && (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {editedImages.map((image, index) => (
+                    <div key={index} className="relative">
+                      <img
+                        src={`http://localhost:8080/uploads/posts/${image}`}
+                        alt={`media-${index}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => handleRemoveImage(index)}
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="flex justify-end gap-2 mt-2">
+                <button
+                  onClick={handleCancelEdit}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Save
+                </button>
+              </div>
+            </>
           )}
           <div className="flex items-center gap-4 mt-2">
-            <ReplyButton
-              onClick={handleReply}
-              replyCount={replyCount}
-              className="text-gray-500 hover:text-blue-500"
-            />
+            {!user.isReadOnly && (
+              <ReplyButton
+                onClick={handleReply}
+                replyCount={replyCount}
+                className="text-gray-500 hover:text-blue-500"
+              />
+            )}
             <LikeButton
               onClick={() => {
                 if (currentHasLiked) {
@@ -206,30 +259,6 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
               </>
             )}
           </div>
-          {isEditing && (
-            <div className="mt-4">
-              <textarea
-                value={editedMessage}
-                onChange={(e) => setEditedMessage(e.target.value)}
-                className="w-full p-2 border rounded"
-                rows={3}
-              />
-              <div className="flex justify-end gap-2 mt-2">
-                <button
-                  onClick={handleCancelEdit}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveEdit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          )}
           {showReplyForm && (
             <ReplyForm
               tweetId={id}

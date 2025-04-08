@@ -114,6 +114,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?bool $isBlocked = null;
 
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isReadOnly = false;
+
+    #[ORM\Column(type: 'boolean', options: ['default' => false])]
+    private bool $isPrivate = false;
+
     public function __construct()
     {
         $this->posts = new ArrayCollection();
@@ -511,6 +517,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function isReadOnly(): bool
+    {
+        return $this->isReadOnly;
+    }
+
+    public function setIsReadOnly(bool $isReadOnly): self
+    {
+        $this->isReadOnly = $isReadOnly;
+        return $this;
+    }
+
+    public function isPrivate(): bool
+    {
+        return $this->isPrivate;
+    }
+
+    public function setIsPrivate(bool $isPrivate): self
+    {
+        $this->isPrivate = $isPrivate;
         return $this;
     }
 }

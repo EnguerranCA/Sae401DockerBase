@@ -103,6 +103,8 @@ final class UserController extends AbstractController
             'isFollowed' => $isFollowed,
             'isBlocked' => $isBlocked,
             'blockedUsers' => $blockedUsers,
+            'isReadOnly' => $user->isReadOnly(),
+            'isPrivate' => $user->isPrivate(),
         ]);
     }
 
@@ -141,12 +143,11 @@ final class UserController extends AbstractController
     // Edit user info
     #[Route('/api/me', methods: ['PATCH'])]
     #[IsGranted('ROLE_USER')]
-    public function edit(Request $request, UserRepository $userRepository, EntityManagerInterface $entityManager): Response
+    public function updateUser(Request $request, EntityManagerInterface $entityManager): JsonResponse
     {
         $user = $this->getUser();
-
         if (!$user) {
-            return $this->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+            return new JsonResponse(['error' => 'User not found'], Response::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
@@ -154,42 +155,40 @@ final class UserController extends AbstractController
         if (isset($data['username'])) {
             $user->setUsername($data['username']);
         }
-
         if (isset($data['name'])) {
             $user->setName($data['name']);
         }
-
         if (isset($data['bio'])) {
             $user->setBio($data['bio']);
         }
-
         if (isset($data['website'])) {
             $user->setWebsite($data['website']);
         }
-
         if (isset($data['avatar'])) {
             $user->setAvatar($data['avatar']);
         }
-
         if (isset($data['banner'])) {
             $user->setBanner($data['banner']);
         }
-
-        if (isset($data['location'])) {
-            $user->setLocation($data['location']);
+        if (isset($data['isReadOnly'])) {
+            $user->setIsReadOnly($data['isReadOnly']);
+        }
+        if (isset($data['isPrivate'])) {
+            $user->setIsPrivate($data['isPrivate']);
         }
 
         $entityManager->flush();
 
-        return $this->json([
+        return new JsonResponse([
             'id' => $user->getId(),
             'username' => $user->getUsername(),
             'name' => $user->getName(),
-            'avatar' => $user->getAvatar(),
             'bio' => $user->getBio(),
-            'banner' => $user->getBanner(),
             'website' => $user->getWebsite(),
-            'location' => $user->getLocation(),
+            'avatar' => $user->getAvatar(),
+            'banner' => $user->getBanner(),
+            'isReadOnly' => $user->isReadOnly(),
+            'isPrivate' => $user->isPrivate(),
         ]);
     }
 
@@ -247,7 +246,7 @@ final class UserController extends AbstractController
     }
 
     #[Route('/api/admin/users/{id}', methods: ['PATCH'])]
-    public function updateUser(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, int $id): Response
+    public function updateUserAdmin(Request $request, UserRepository $userRepository, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, int $id): Response
     {
         $user = $userRepository->findOneById($id);
 

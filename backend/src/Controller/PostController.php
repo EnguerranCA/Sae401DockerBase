@@ -139,6 +139,8 @@ final class PostController extends AbstractController
                         'name' => $user ? $user->getName() : null,
                         'username' => $user ? $user->getUsername() : null,
                         'avatar' => $user ? $user->getAvatar() : null,
+                        'isReadOnly' => $user ? $user->isReadOnly() : null,
+                        'isPrivate' => $user ? $user->isPrivate() : null,
                     ],
                     'likes' => [
                         'count' => count($likes),

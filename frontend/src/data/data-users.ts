@@ -1,5 +1,16 @@
 import { getRequest, postRequests, patchRequest } from "../lib/utils";
 
+interface User {
+    id: number;
+    username: string;
+    name: string;
+    bio?: string;
+    website?: string;
+    avatar?: string;
+    banner?: string;
+    isReadOnly?: boolean;
+    isPrivate?: boolean;
+}
 
 const Users = {
     getUserInfo: async (userId: number) => {
@@ -134,7 +145,7 @@ const Users = {
             throw error;
         }
     },
-    updateUserInfo: async (data: { username?: string; name?: string; bio?: string; website?: string; avatar?: string; banner?: string }) => {
+    updateUserInfo: async (data: Partial<User>) => {
         try {
             const token = localStorage.getItem('token');
             const response = await patchRequest('http://localhost:8080/api/me', data, {

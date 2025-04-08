@@ -8,6 +8,7 @@ import Home from "./routes/home";
 import Login from "./routes/login";
 import Verify from "./routes/verify";
 import Profile from "./routes/profile";
+import Settings from "./routes/settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -33,6 +34,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "settings",
+        element: (
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         ),
       },
