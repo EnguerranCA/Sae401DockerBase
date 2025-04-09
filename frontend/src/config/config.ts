@@ -1,4 +1,4 @@
 export const config = {
-    API_URL: 'http://localhost:8080',
-    UPLOADS_URL: 'http://localhost:8080/uploads'
-} as const; 
+    API_URL: import.meta.env.VITE_API_URL,
+    UPLOADS_URL: import.meta.env.VITE_API_URL + '/uploads'
+} as const;
