@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { cva } from "class-variance-authority";
+import { config } from '../../config/config';
 import Avatar from '../../ui/Avatar';
 import SubmitButton from '../../ui/Buttons/SubmitButton';
 import Users from '../../data/data-users';
 import Posts from '../../data/data-posts';
+
+const { UPLOADS_URL } = config;
 
 interface ReplyFormProps {
     tweetId: number;
@@ -32,7 +35,7 @@ const replyFormStyles = cva(
     }
 );
 
-const ReplyForm = ({ tweetId, onReplyPosted, className = '', variant, user }: ReplyFormProps) => {
+const ReplyForm: React.FC<ReplyFormProps> = ({ tweetId, onReplyPosted, className = '', variant, user }) => {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -56,9 +59,9 @@ const ReplyForm = ({ tweetId, onReplyPosted, className = '', variant, user }: Re
         <form onSubmit={handleSubmit} className={`${replyFormStyles({ variant })} ${className}`}>
             <div className="flex gap-2">
                 <Avatar
-                    src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
-                    alt="Your avatar"
-                    size={40}
+                    src={`${UPLOADS_URL}/avatars/${user.avatar}`}
+                    alt={user.username}
+                    size={48}
                 />
                 <textarea
                     className="flex-1 p-2 border rounded-lg resize-none"

@@ -1,6 +1,9 @@
 import Avatar from '../../ui/Avatar';
 import React, { useState } from 'react';
 import Posts from '../../data/data-posts';
+import { config } from '../../config/config';
+
+const { UPLOADS_URL } = config;
 
 interface WritingTweetProps {
   refreshTweets: () => void;
@@ -12,7 +15,7 @@ interface WritingTweetProps {
   className?: string;
 }
 
-const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
+const WritingTweet: React.FC<WritingTweetProps> = ({ refreshTweets, user }) => {
   const [tweet, setTweet] = useState('');
   const [charCount, setCharCount] = useState(0);
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
@@ -54,9 +57,13 @@ const WritingTweet = ({ refreshTweets, user }: WritingTweetProps) => {
   };
 
   return (
-    <div className="writing-tweet rounded-lg p-4 w-full mx-auto bg-white">
-      <div className="flex items-start">
-        <Avatar src={`http://localhost:8080/uploads/avatars/${user.avatar}`} alt={user.username} size={64} />
+    <div className="bg-white p-4 border-b border-gray-200">
+      <div className="flex space-x-4">
+        <Avatar
+          src={`${UPLOADS_URL}/avatars/${user.avatar}`}
+          alt={user.username}
+          size={64}
+        />
         <textarea
           value={tweet}
           onChange={handleTweetChange}

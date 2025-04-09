@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import SubmitButton from "../../ui/Buttons/SubmitButton"
+import { config } from '../../config/config';
+
+const { API_URL } = config;
 
 const LoginForm = () => {
     const [username, setUsername] = useState('');
@@ -13,7 +16,7 @@ const LoginForm = () => {
         event.preventDefault();
 
         try {
-            const response = await fetch('http://localhost:8080/api/login', {
+            const response = await fetch(`${API_URL}/api/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -31,7 +34,6 @@ const LoginForm = () => {
                 }
             }
 
-
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
             localStorage.setItem('username', username);
@@ -39,9 +41,9 @@ const LoginForm = () => {
             localStorage.removeItem('tempUsername');
 
             if (data.role === 'admin') {
-                window.location.href = 'http://localhost:8080/admin';
+                window.location.href = `${API_URL}/admin`;
             } else {
-            navigate('/home');
+                navigate('/home');
             }   
         } catch (error) {
             setError('Invalid username or password');

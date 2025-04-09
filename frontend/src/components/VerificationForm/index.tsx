@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Users from '../../data/data-users';
+import { config } from '../../config/config';
+
+const { API_URL } = config;
 
 const VerificationForm = () => {
     const [verification_code, setVerificationCode] = useState('');
@@ -11,7 +14,7 @@ const VerificationForm = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:8080/verify', {
+            const response = await fetch(`${API_URL}/verify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

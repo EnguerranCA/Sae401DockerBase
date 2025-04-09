@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import SubmitButton from "../../ui/Buttons/SubmitButton"
+import { config } from '../../config/config';
+
+const { API_URL } = config;
 
 export default function SignInForm() {
   const [name, setName] = useState('');
@@ -32,7 +35,7 @@ export default function SignInForm() {
         formData.append('avatar', avatarInput.files[0]);
       }
 
-      const response = await fetch('http://localhost:8080/register', {
+      const response = await fetch(`${API_URL}/register`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -116,9 +119,9 @@ export default function SignInForm() {
           className="appearance-none rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-hidden focus:border-primary mt-4"
           required
         />
-      </div>lu
+      </div>
 
-      <div className="mb-6 relative border rounded-md pt-2</div>">
+      <div className="mb-6 relative border rounded-md pt-2">
         <label className="absolute left-2 text-gray-600 text-xs font-bold" htmlFor="avatar">Avatar</label>
         <input
           type="file"
@@ -139,7 +142,6 @@ export default function SignInForm() {
 
       <div className="flex items-center justify-between">
         <SubmitButton text="Inscription" variant='primary' />
-
       </div>
 
       <div className="text-center mt-4">

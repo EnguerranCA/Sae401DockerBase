@@ -1,9 +1,12 @@
 import { getRequest, postRequests, deleteRequest, patchRequest } from "../lib/utils";
+import { config } from '../config/config';
+
+const { API_URL } = config;
 
 const Posts = {
     loadAllPosts: async () => {
         try {
-            const posts = await getRequest('http://localhost:8080/api/posts');
+            const posts = await getRequest(`${API_URL}/api/posts`);
             return posts;
         } catch (error) {
             console.error('Error loading posts:', error);
@@ -12,7 +15,7 @@ const Posts = {
     },
     loadAllFollowedPosts: async (page: number) => {
         try {
-            const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}&filter=follow`);
+            const posts = await getRequest(`${API_URL}/api/posts?page=${page}&filter=follow`);
             return posts;
         } catch (error) {
             console.error('Error loading followed posts:', error);
@@ -21,7 +24,7 @@ const Posts = {
     },
     loadUserPosts: async (username: string) => {
         try {
-            const posts = await getRequest(`http://localhost:8080/api/posts/user/${username}`);
+            const posts = await getRequest(`${API_URL}/api/posts/user/${username}`);
             return posts;
         } catch (error) {
             console.error('Error loading user posts:', error);
@@ -30,7 +33,7 @@ const Posts = {
     },
     loadPostsByPage: async (page: number) => {
         try {
-            const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}`);
+            const posts = await getRequest(`${API_URL}/api/posts?page=${page}`);
             return posts;
         } catch (error) {
             console.error('Error loading posts:', error);
@@ -39,7 +42,7 @@ const Posts = {
     },
     loadFollowedPostsByPage: async (page: number) => {
         try {
-            const posts = await getRequest(`http://localhost:8080/api/posts?page=${page}&filter=follow`);
+            const posts = await getRequest(`${API_URL}/api/posts?page=${page}&filter=follow`);
             return posts;
         } catch (error) {
             console.error('Error loading followed posts:', error);
@@ -60,7 +63,7 @@ const Posts = {
             console.log('FormData:', Array.from(formData.entries()));
             
 
-            const response = await postRequests('http://localhost:8080/api/posts', {
+            const response = await postRequests(`${API_URL}/api/posts`, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`,
                 }
@@ -74,7 +77,7 @@ const Posts = {
     likeOnePost: async (postId: number) => {
         try {
             const apiToken = localStorage.getItem('apiToken');
-            const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/like', {
+            const response = await postRequests(`${API_URL}/api/posts/${postId}/like`, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`
                 }
@@ -88,7 +91,7 @@ const Posts = {
     unlikeOnePost: async (postId: number) => {
         try {
             const apiToken = localStorage.getItem('apiToken');
-            const response = await postRequests('http://localhost:8080/api/posts/' + postId + '/unlike', {
+            const response = await postRequests(`${API_URL}/api/posts/${postId}/unlike`, {
                 headers: {
                     Authorization: `Bearer ${apiToken}`
                 }
@@ -102,7 +105,7 @@ const Posts = {
     deleteOnePost: async (postId: number) => {
         try {
             const apiToken = localStorage.getItem('apiToken');
-            const response = await deleteRequest('http://localhost:8080/api/posts/' + postId);
+            const response = await deleteRequest(`${API_URL}/api/posts/${postId}`);
             return response;
         } catch (error) {
             console.error('Error deleting post:', error);
@@ -111,7 +114,7 @@ const Posts = {
     },
     updatePost: async (postId: number, content: string, mediaFiles?: string[]) => {
         try {
-            const response = await patchRequest(`http://localhost:8080/api/posts/${postId}`, { content, mediaFiles });
+            const response = await patchRequest(`${API_URL}/api/posts/${postId}`, { content, mediaFiles });
             return response;
         } catch (error) {
             console.error('Error updating post:', error);
@@ -120,7 +123,7 @@ const Posts = {
     },
     async getReplies(postId: number): Promise<any[]> {
         try {
-            const response = await getRequest(`http://localhost:8080/api/posts/${postId}/replies`);
+            const response = await getRequest(`${API_URL}/api/posts/${postId}/replies`);
             return response;
         } catch (error) {
             console.error('Error fetching replies:', error);
@@ -133,7 +136,7 @@ const Posts = {
             const formData = new FormData();
             formData.append('content', content);
             
-            const response = await postRequests(`http://localhost:8080/api/posts/${postId}/reply`, undefined, formData);
+            const response = await postRequests(`${API_URL}/api/posts/${postId}/reply`, undefined, formData);
             return response;
         } catch (error) {
             console.error('Error posting reply:', error);

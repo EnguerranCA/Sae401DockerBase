@@ -151,7 +151,7 @@ const TweetFeed: React.FC<TweetFeedProps> = ({ refreshTweets, filter }) => {
   };
 
   return (
-    <div id="tweetFeed" className="flex flex-col items-center w-full relative">
+    <div id="tweetFeed" className="flex flex-col items-center w-full  relative">
       {error && <div className="text-red-500 font-bold">{error}</div>}
       {showReloadButton && (
         <ReloadButton

@@ -1,4 +1,7 @@
 import { getRequest, postRequests, patchRequest } from "../lib/utils";
+import { config } from '../config/config';
+
+const { API_URL } = config;
 
 interface User {
     id: number;
@@ -15,7 +18,7 @@ interface User {
 const Users = {
     getUserInfo: async (userId: number) => {
         try {
-            const user = await getRequest('http://localhost:8080/users/' + userId);
+            const user = await getRequest(`${API_URL}/users/${userId}`);
             return user;
         }
         catch (error) {
@@ -25,7 +28,7 @@ const Users = {
     },
     getUserInfoByUsername: async (username: string) => {
         try {
-            const user = await getRequest('http://localhost:8080/api/users/' + username);
+            const user = await getRequest(`${API_URL}/api/users/${username}`);
             return user;
         }
         catch (error) {
@@ -35,7 +38,7 @@ const Users = {
     },
     getCurrentUserInfo: async () => {
         try {
-            const user = await getRequest('http://localhost:8080/api/me');
+            const user = await getRequest(`${API_URL}/api/me`);
             return user;
         }
         catch (error) {
@@ -50,7 +53,7 @@ const Users = {
     },
     resendVerification: async (username: string) => {
         try {
-            const response = await postRequests('http://localhost:8080/resend', { username });
+            const response = await postRequests(`${API_URL}/resend`, { username });
             return response;
         }
         catch (error) {
@@ -60,7 +63,7 @@ const Users = {
     },
     getAllUsers: async () => {
         try {
-            const users = await getRequest('http://localhost:8080/api/admin/users');
+            const users = await getRequest(`${API_URL}/api/admin/users`);
             return users;
         }
         catch (error) {
@@ -70,7 +73,7 @@ const Users = {
     },
     getUserInfoAdmin: async (username: string) => {
         try {
-            const user = await getRequest('http://localhost:8080/api/admin/users/' + username);
+            const user = await getRequest(`${API_URL}/api/admin/users/${username}`);
             return user;
         }
         catch (error) {
@@ -80,12 +83,7 @@ const Users = {
     },
     followUser: async (username: string) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await postRequests('http://localhost:8080/api/users/' + username + '/follow', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await postRequests(`${API_URL}/api/users/${username}/follow`, {});
             return response;
         }
         catch (error) {
@@ -95,12 +93,7 @@ const Users = {
     },
     unfollowUser: async (username: string) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await postRequests('http://localhost:8080/api/users/' + username + '/unfollow' , {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await postRequests(`${API_URL}/api/users/${username}/unfollow`, {});
             return response;
         }
         catch (error) {
@@ -111,15 +104,9 @@ const Users = {
     // Profile
     updateImage: async (image: File) => {
         try {
-            const token = localStorage.getItem('token');
             const formData = new FormData();
             formData.append('avatar', image);
-            const response = await postRequests('http://localhost:8080/api/users/avatar',  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            }, formData);
+            const response = await postRequests(`${API_URL}/api/users/avatar`, formData);
             return response;
         }
         catch (error) {
@@ -129,15 +116,9 @@ const Users = {
     },
     updateBanner: async (image: File) => {
         try {
-            const token = localStorage.getItem('token');
             const formData = new FormData();
             formData.append('banner', image);
-            const response = await postRequests('http://localhost:8080/api/users/banner',  {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
-                }
-            }, formData);
+            const response = await postRequests(`${API_URL}/api/users/banner`, formData);
             return response;
         }
         catch (error) {
@@ -147,13 +128,7 @@ const Users = {
     },
     updateUserInfo: async (data: Partial<User>) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await patchRequest('http://localhost:8080/api/me', data, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+            const response = await patchRequest(`${API_URL}/api/me`, data);
             return response;
         }
         catch (error) {
@@ -163,12 +138,7 @@ const Users = {
     },
     blockUser: async (username: string) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await postRequests('http://localhost:8080/api/users/' + username + '/block', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await postRequests(`${API_URL}/api/users/${username}/block`, {});
             return response;
         }
         catch (error) {
@@ -178,12 +148,7 @@ const Users = {
     },
     unblockUser: async (username: string) => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await postRequests('http://localhost:8080/api/users/' + username + '/unblock', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await postRequests(`${API_URL}/api/users/${username}/unblock`, {});
             return response;
         }
         catch (error) {

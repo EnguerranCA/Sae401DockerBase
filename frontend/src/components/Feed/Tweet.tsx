@@ -12,6 +12,7 @@ import Users from '../../data/data-users';
 import { useNavigate } from 'react-router-dom';
 import MediaGallery from '../../ui/Media/MediaGallery';
 import { cva } from "class-variance-authority";
+import { config } from '../../config/config';
 
 const tweetStyles = cva(
   "w-full border-b border-gray-200 p-4",
@@ -174,7 +175,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, vari
         <div className={avatarStyles({ variant })}>
           <Link to={`/profile/${user.username}`}>
             <Avatar
-              src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
+              src={`${config.UPLOADS_URL}/avatars/${user.avatar}`}
               alt={user.name}
               size={variant === 'reply' ? 32 : 48}
             />
@@ -212,19 +213,11 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, vari
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   {editedImages.map((image, index) => (
                     <div key={index} className="relative">
-                      {image.endsWith('.mp4') || image.endsWith('.mov') ? (
-                        <video
-                          src={`http://localhost:8080/uploads/media/${image}`}
-                          className="w-full h-32 object-cover rounded-lg"
-                          controls
-                        />
-                      ) : (
-                        <img
-                          src={`http://localhost:8080/uploads/media/${image}`}
-                          alt={`media-${index}`}
-                          className="w-full h-32 object-cover rounded-lg"
-                        />
-                      )}
+                      <img
+                        src={`${config.UPLOADS_URL}/posts/${image}`}
+                        alt={`media-${index}`}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
                       <button
                         onClick={() => handleRemoveImage(index)}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"

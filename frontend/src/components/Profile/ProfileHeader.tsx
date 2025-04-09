@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from 'react';
 import Users from '../../data/data-users';
 import TweetFeed from '../Feed/TweetFeed';
 import ProfileImageEdit from '../../ui/Avatar/ProfileImageEdit';
@@ -5,9 +6,11 @@ import BannerImageEdit from '../../ui/Avatar/BannerImageEdit';
 import FollowButton from '../../ui/Buttons/FollowButton';
 import BlockButton from '../../ui/Buttons/BlockButton';
 import SubmitButton from '../../ui/Buttons/SubmitButton';
-import { useState, useEffect } from 'react';
 import Avatar from '../../ui/Avatar';
 import { useNavigate } from 'react-router-dom';
+import { config } from '../../config/config';
+
+const { UPLOADS_URL } = config;
 
 interface ProfileHeaderProps {
     user: {
@@ -24,7 +27,7 @@ interface ProfileHeaderProps {
     };
 }
 
-const ProfileHeader = ({ user }: ProfileHeaderProps) => {
+const ProfileHeader: React.FC<ProfileHeaderProps> = ({ user }) => {
     const isUserAuthor = localStorage.getItem('username') === user.username;
     const [isBlocked, setIsBlocked] = useState(user.isBlocked);
     const [blockedUsers, setBlockedUsers] = useState<any[]>([]);
@@ -54,12 +57,12 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
     return (
         <div className="relative flex flex-col items-center w-full border border-lightborder">
             <div className='h-32 object-cover w-full relative'>
-                <img src={`http://localhost:8080/uploads/banners/${user.banner}`} alt="Banner" className="h-32 w-full object-cover" />
+                <img src={`${UPLOADS_URL}/banners/${user.banner}`} alt="Banner" className="h-32 w-full object-cover" />
                 <div className="absolute bottom-2 right-2">
                     {isUserAuthor && <BannerImageEdit />}
                 </div>
             </div>
-            <img src={`http://localhost:8080/uploads/avatars/${user.avatar}`} alt="Avatar" className="w-24 h-24 rounded-full -mt-12 mb-4 border-4 border-white z-10" />
+            <img src={`${UPLOADS_URL}/avatars/${user.avatar}`} alt="Avatar" className="w-24 h-24 rounded-full -mt-12 mb-4 border-4 border-white z-10" />
             {isUserAuthor && <ProfileImageEdit />}
 
             {/* Info */}
@@ -208,7 +211,7 @@ const ProfileHeader = ({ user }: ProfileHeaderProps) => {
                                         onClick={() => handleUserClick(blockedUser.username)}
                                     >
                                         <Avatar
-                                            src={`http://localhost:8080/uploads/avatars/${blockedUser.avatar}`}
+                                            src={`${UPLOADS_URL}/avatars/${blockedUser.avatar}`}
                                             alt={blockedUser.name}
                                             size={32}
                                         />
