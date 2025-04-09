@@ -30,7 +30,7 @@ const MainPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center w-full border border-lightborder md:w-1/3">
+    <div className="flex flex-col items-center w-full border border-lightborder md:w-2/3">
       {currentUser && (
         <WritingTweet
           user={currentUser}

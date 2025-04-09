@@ -10,6 +10,11 @@ interface ReplyFormProps {
     onReplyPosted: () => void;
     className?: string;
     variant?: 'default' | 'compact';
+    user: {
+        avatar: string;
+        name: string;
+        username: string;
+    };
 }
 
 const replyFormStyles = cva(
@@ -27,7 +32,7 @@ const replyFormStyles = cva(
     }
 );
 
-const ReplyForm = ({ tweetId, onReplyPosted, className = '', variant }: ReplyFormProps) => {
+const ReplyForm = ({ tweetId, onReplyPosted, className = '', variant, user }: ReplyFormProps) => {
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -51,7 +56,7 @@ const ReplyForm = ({ tweetId, onReplyPosted, className = '', variant }: ReplyFor
         <form onSubmit={handleSubmit} className={`${replyFormStyles({ variant })} ${className}`}>
             <div className="flex gap-2">
                 <Avatar
-                    src={`http://localhost:8080/uploads/avatars/${localStorage.getItem('avatar')}`}
+                    src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
                     alt="Your avatar"
                     size={40}
                 />

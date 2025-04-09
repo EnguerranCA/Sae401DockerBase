@@ -11,6 +11,37 @@ import Posts from '../../data/data-posts';
 import Users from '../../data/data-users';
 import { useNavigate } from 'react-router-dom';
 import MediaGallery from '../../ui/Media/MediaGallery';
+import { cva } from "class-variance-authority";
+
+const tweetStyles = cva(
+  "w-full border-b border-gray-200 p-4",
+  {
+    variants: {
+      variant: {
+        tweet: "bg-white",
+        reply: "bg-gray-50 pl-8 border-l-2 border-gray-200",
+      },
+    },
+    defaultVariants: {
+      variant: 'tweet',
+    },
+  }
+);
+
+const avatarStyles = cva(
+  "flex-shrink-0",
+  {
+    variants: {
+      variant: {
+        tweet: "w-12 h-12",
+        reply: "w-8 h-8",
+      },
+    },
+    defaultVariants: {
+      variant: 'tweet',
+    },
+  }
+);
 
 interface TweetProps {
   id: number;
@@ -26,7 +57,7 @@ interface TweetProps {
   likes: number;
   hasLiked: boolean;
   replyCount: number;
-  isReply?: boolean;
+  variant?: 'tweet' | 'reply';
   images?: string[];
   onLike: (postId: number) => void;
   onDelete?: (postId: number) => void;
@@ -45,7 +76,7 @@ interface TweetProps {
   }>;
 }
 
-const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isReply = false, images = [], onLike, onDelete, replies = [] }: TweetProps) => {
+const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, variant = 'tweet', images = [], onLike, onDelete, replies = [] }: TweetProps) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [currentHasLiked, setHasLiked] = useState(hasLiked);
@@ -138,14 +169,14 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
   };
 
   return (
-    <div className={`w-full border-b border-gray-200 p-4 ${isReply ? 'bg-gray-50' : ''}`}>
+    <div className={tweetStyles({ variant })}>
       <div className="flex gap-2">
-        <div className="flex-shrink-0">
+        <div className={avatarStyles({ variant })}>
           <Link to={`/profile/${user.username}`}>
             <Avatar
               src={`http://localhost:8080/uploads/avatars/${user.avatar}`}
               alt={user.name}
-              size={isReply ? 32 : 48}
+              size={variant === 'reply' ? 32 : 48}
             />
           </Link>
         </div>
@@ -181,11 +212,19 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   {editedImages.map((image, index) => (
                     <div key={index} className="relative">
-                      <img
-                        src={`http://localhost:8080/uploads/posts/${image}`}
-                        alt={`media-${index}`}
-                        className="w-full h-32 object-cover rounded-lg"
-                      />
+                      {image.endsWith('.mp4') || image.endsWith('.mov') ? (
+                        <video
+                          src={`http://localhost:8080/uploads/media/${image}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                          controls
+                        />
+                      ) : (
+                        <img
+                          src={`http://localhost:8080/uploads/media/${image}`}
+                          alt={`media-${index}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                      )}
                       <button
                         onClick={() => handleRemoveImage(index)}
                         className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
@@ -205,7 +244,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
                 </button>
                 <button
                   onClick={handleSaveEdit}
-                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-hover"
                 >
                   Save
                 </button>
@@ -217,7 +256,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
               <ReplyButton
                 onClick={handleReply}
                 replyCount={replyCount}
-                className="text-gray-500 hover:text-blue-500"
+                className="text-gray-500 hover:text-primary-hover"
               />
             )}
             <LikeButton
@@ -239,7 +278,7 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
               <>
                 <button
                   onClick={() => setIsEditing(true)}
-                  className="text-gray-500 hover:text-blue-500"
+                  className="text-gray-500 hover:text-primary-hover"
                 >
                   Edit
                 </button>
@@ -269,15 +308,16 @@ const Tweet = ({ id, content, createdAt, user, likes, hasLiked, replyCount, isRe
                 }
               }}
               className="mt-4"
+              user={user}
             />
           )}
           {replies.length > 0 && (
-            <div className="w-full mt-4 space-y-2 pl-8 border-l-2 border-gray-200">
+            <div className="w-full mt-4 space-y-2">
               {replies.map((reply) => (
                 <Tweet
                   key={reply.id}
                   {...reply}
-                  isReply={true}
+                  variant="reply"
                   onLike={onLike}
                   replyCount={0}
                 />

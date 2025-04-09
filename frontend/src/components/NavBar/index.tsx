@@ -28,7 +28,7 @@ export default function NavBar() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full flex justify-around bg-white p-2 md:top-0 md:left-0 md:gap-4 md:h-full md:flex-col md:justify-start md:items-center md:w-1/3">
+    <nav className="fixed bottom-0 left-0 w-full flex justify-around bg-white p-2  md:top-0 md:left-0 md:gap-8 md:h-full md:flex-col md:justify-start md:items-center md:w-1/6   z-8">
       <Logo />
       <HomeButton />
       <SettingsButton />
