@@ -59,7 +59,9 @@ const router = createBrowserRouter([
     path: "verify",
     element: <Verify />,
   },
-]);
+], {
+  basename: "/~caroalquier1/SAE4.DWeb-DI.01/frontend/dist"
+});
 
 const rootElement = document.querySelector("#root");
 

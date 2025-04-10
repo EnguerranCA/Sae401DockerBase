@@ -8,7 +8,7 @@ const SettingsButton = () => {
         className="my-2 flex flex-col justify-center items-center space-x-2 text-lg md:flex-row md:space-x-4 md:space-y-2"
       >
         <img 
-          src="../src/assets/icons/settings-icon.svg" 
+          src="/src/assets/icons/settings-icon.svg" 
           alt="Settings" 
           className="h-8 w-8" 
         />

@@ -16,7 +16,7 @@ const LogoutButton = ({ onLogout }: LogoutButtonProps) => {
         className="my-2 flex flex-col justify-center items-center space-x-2 text-lg md:flex-row md:space-x-4 md:space-y-2"
       >
         <img 
-          src="../src/assets/icons/logout-icon.svg" 
+          src="/src/assets/icons/logout-icon.svg" 
           alt="Logout" 
           className="h-8 w-8" 
         />
