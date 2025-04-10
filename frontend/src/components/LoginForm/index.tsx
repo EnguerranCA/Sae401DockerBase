@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import SubmitButton from "../../ui/Buttons/SubmitButton"
 import { config } from '../../config/config';
+import Cookies from 'js-cookie';
 
 const { API_URL } = config;
 
@@ -11,12 +12,14 @@ const LoginForm = () => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const redirect = searchParams.get('redirect');
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         try {
-            const response = await fetch(`${API_URL}/api/login`, {
+            const response = await fetch(`${API_URL}/api/login${redirect ? `?redirect=${redirect}` : ''}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -37,11 +40,17 @@ const LoginForm = () => {
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
             localStorage.setItem('username', username);
+            // Stocker le token dans un cookie pour EasyAdmin
+            Cookies.set('apiToken', data.token, { path: '/' });
 
             localStorage.removeItem('tempUsername');
 
             if (data.role === 'admin') {
-                window.location.href = `${API_URL}/admin`;
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    window.location.href = `${API_URL}/admin`;
+                }
             } else {
                 navigate('/home');
             }   

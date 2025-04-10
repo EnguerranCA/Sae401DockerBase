@@ -39,10 +39,12 @@ final class SecurityController extends AbstractController
             return $this->json(['message' => 'Email not verified'], Response::HTTP_UNAUTHORIZED);
         }
 
-
         $response = ['token' => $user->getApiToken(), 'role' => 'user'];
         if (in_array('ROLE_ADMIN', $user->getRoles())) {
             $response['role'] = 'admin';
+            if ($request->query->has('redirect')) {
+                $response['redirect'] = $request->query->get('redirect');
+            }
         }
         return $this->json($response);
     }
