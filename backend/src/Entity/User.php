@@ -541,4 +541,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->isPrivate = $isPrivate;
         return $this;
     }
+
+    public function __toString(): string
+    {
+        return $this->username ?? '';
+    }
 }

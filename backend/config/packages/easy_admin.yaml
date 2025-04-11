@@ -1,0 +1,7 @@
+easy_admin:
+    design:
+        assets:
+            css:
+                - '/admin/assets/styles/easyadmin.css'
+    site_name: 'Administration'
+    # ... reste de votre configuration existante ... 

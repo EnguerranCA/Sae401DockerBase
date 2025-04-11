@@ -2,27 +2,32 @@
 
 namespace App\Controller\Admin;
 
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
-class SecurityController extends AbstractDashboardController
+class SecurityController extends AbstractController
 {
     #[Route('/admin/login', name: 'admin_login')]
-    public function login(Request $request): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
         // Si l'utilisateur est déjà connecté en tant qu'admin, redirigez-le vers le dashboard
         if ($this->isGranted('ROLE_ADMIN')) {
             return $this->redirectToRoute('admin');
         }
 
-        // Récupérer l'URL de redirection après la connexion
-        $redirect = $request->query->get('redirect', '/admin');
+        // Récupérer l'erreur de connexion s'il y en a une
+        $error = $authenticationUtils->getLastAuthenticationError();
         
-        // Rediriger vers le login du frontend avec le paramètre de redirection
-        return $this->redirectToRoute('user_login', ['redirect' => $redirect]);
+        // Dernier nom d'utilisateur saisi par l'utilisateur
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        return $this->render('admin/login.html.twig', [
+            'last_username' => $lastUsername,
+            'error' => $error,
+        ]);
     }
 
     #[Route('/admin/logout', name: 'admin_logout')]
