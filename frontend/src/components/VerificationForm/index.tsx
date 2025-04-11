@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Users from '../../data/data-users';
-import { config } from '../../config/config';
-
-const { API_URL } = config;
 
 const VerificationForm = () => {
     const [verification_code, setVerificationCode] = useState('');
@@ -14,7 +11,7 @@ const VerificationForm = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
-            const response = await fetch(`${API_URL}/verify`, {
+            const response = await fetch('http://localhost:8080/verify', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -28,8 +25,6 @@ const VerificationForm = () => {
 
             const data = await response.json();
             localStorage.setItem('apiToken', data.token);
-            localStorage.setItem('username', username);
-
             console.log(data.token);
             navigate('/home');
         } catch (error) {
@@ -79,7 +74,7 @@ const VerificationForm = () => {
                     Resend
                 </button>
                 <button
-                    className="bg-primary hover:bg-primary-hover text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-primary w-full"
+                    className="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full focus:outline-hidden focus:border-primary w-full"
                     type="submit"
                 >
                     Verify

@@ -3,58 +3,85 @@ import Tweet from './Tweet';
 import WritingTweet from './WritingTweet';
 import Posts from '../../data/data-posts';
 import Users from '../../data/data-users';
-import ReloadButton from '../../ui/Buttons/ReloadButton';
-import TweetFeed from './TweetFeed';
-import FeedSwitch from './FeedSwitch';
 
 
 // Save the current page number
 let page = 1;
 
-const MainPage = () => {
+const TweetFeed = () => {
+  // Load the data for the current user
   const [currentUser, setCurrentUser] = useState(null);
-  const [pageKey, setPageKey] = useState(1); // Utilisé pour forcer le rechargement
-  const [filter, setFilter] = useState<string>('none'); // État pour le filtre
 
   useEffect(() => {
     Users.getCurrentUserInfo().then(user => setCurrentUser(user));
   }, []);
 
-  const refreshFeed = () => {
-    setPageKey((prevKey) => prevKey + 1); // Incrémente la clé pour forcer le rechargement
+
+  const [tweets, setTweets] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchTweets = async () => {
+    try {
+      const response = await Posts.loadAllPosts();
+      if (response && response.posts) {
+        if (response.posts.length === 0) {
+          setError('No posts found');
+          return;
+        }
+        setTweets(response.posts);
+      } else {
+        setError('No posts found');
+      }
+    } catch (err) {
+      setError('Failed to fetch posts');
+      console.error(err);
+    }
   };
 
-  const handleFilterChange = (newFilter: string) => {
-    setFilter(newFilter); // Met à jour le filtre sélectionné
-    refreshFeed(); // Recharge le flux
+  const fetchMoreTweets = async () => {
+    try {
+      const response = await Posts.loadPostsByPage(page + 1);
+      if (response && response.posts) {
+        setTweets((prevTweets) => [...prevTweets, ...response.posts]);
+        page++;
+      } else {
+        setError('No more posts found');
+      }
+    } catch (err) {
+      setError('Failed to fetch more posts');
+      console.error(err);
+    }
   };
+
+  const handleScroll = () => {
+    if (window.innerHeight + document.documentElement.scrollTop === document.documentElement.offsetHeight) {
+      fetchMoreTweets();
+    }
+  };
+
+  useEffect(() => {
+    fetchTweets();
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div className="flex flex-col items-center w-full  border border-lightborder md:w-2/3 md:max-w-[800px]">
+    <div className="flex flex-col items-center w-full border md:w-1/3">
+      {error && <div className="text-red-500">{ error}</div>}
       {currentUser && (
         <WritingTweet
           user={currentUser}
           className="w-10 h-10"
-          refreshTweets={refreshFeed} // Passe la fonction de rafraîchissement
+          refreshTweets={() => fetchTweets()}
         />
       )}
 
-      {/* Commutateur pour choisir entre "Tous les tweets" et "Tweets suivis" */}
-      <FeedSwitch
-        refreshTweets={refreshFeed}
-        tabs={[
-          { label: 'Home', filter: 'none' },
-          { label: 'Follow', filter: 'follow' },
-        ]}
-        onFilterChange={handleFilterChange} // Passe la fonction de changement de filtre
-      />
-
-      {/* Affiche les tweets en fonction du filtre */}
-      <div className="flex flex-col items-center w-full relative" key={pageKey}>
-        <TweetFeed refreshTweets={refreshFeed} filter={filter} />
-      </div>
+      {tweets.map((tweet) => (
+        <Tweet key={tweet.id} user={tweet.user} message={tweet.content} />
+      ))}
+      {/* <button onClick={() => fetchMoreTweets()} className="bg-blue-500 text-white px-4 py-2 rounded-full">Load More</button> */}
     </div>
   );
 };
 
-export default MainPage;
+export default TweetFeed;

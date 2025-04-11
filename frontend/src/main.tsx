@@ -7,8 +7,6 @@ import Root from "./routes/root";
 import Home from "./routes/home";
 import Login from "./routes/login";
 import Verify from "./routes/verify";
-import Profile from "./routes/profile";
-import Settings from "./routes/settings";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -29,22 +27,6 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-      {
-        path: "profile/:handle",
-        element: (
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "settings",
-        element: (
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        ),
-      },
     ],
   },
   {
@@ -60,7 +42,7 @@ const router = createBrowserRouter([
     element: <Verify />,
   },
 ], {
-  basename: "/~caroalquier1/SAE4.DWeb-DI.01/frontend/dist"
+  basename: "/~caroalquier1/SAE4.DWeb-DI.01/frontendA/dist"
 });
 
 const rootElement = document.querySelector("#root");

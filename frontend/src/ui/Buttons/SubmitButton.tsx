@@ -4,7 +4,6 @@ interface ButtonProps {
     text: string;
     className?: string;
     variant?: 'primary' | 'border';
-    disabled?: boolean;
 }
 
 const buttonStyles = cva(
@@ -22,12 +21,11 @@ const buttonStyles = cva(
     }
 );
 
-const SubmitButton = ({ text, className, variant, disabled }: ButtonProps) => {
+const SubmitButton = ({ text, className, variant }: ButtonProps) => {
     return (
         <button
             className={`${buttonStyles({ variant })} ${className} hover:cursor-pointer`}
             type="submit"
-            disabled={disabled}
         >
             {text}
         </button>
